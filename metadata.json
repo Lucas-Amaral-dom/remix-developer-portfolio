@@ -1,0 +1,8 @@
+{
+  "name": "Desert Oasis — Portfolio Quest",
+  "description": "Portfólio jogável 2D em pixel art ambientado em Desert Oasis: explore construções de adobe com portas animadas, batalhe com Pokémon de múltiplos tipos e golpes customizáveis em tela cheia.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
