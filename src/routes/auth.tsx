@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/hooks/useAuth";
 import { PixelButton } from "@/components/pixel/PixelButton";
 
@@ -66,15 +65,19 @@ function AuthPage() {
   }
 
   async function google() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/admin`,
+      },
     });
-    if (result.error) {
+    if (error) {
       toast.error("Não deu para entrar com o Google.");
       return;
     }
-    if (result.redirected) return;
-    navigate({ to: "/admin" });
+    if (!data.url) {
+      toast.error("O login com Google não retornou uma URL.");
+    }
   }
 
   const field = "pixel-frame-sm bg-input/40 w-full px-3 py-2 text-sm outline-none";
