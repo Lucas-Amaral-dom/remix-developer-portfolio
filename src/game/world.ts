@@ -30,7 +30,11 @@ export type FurnitureKind =
   | "computer"
   | "tent"
   | "brazier"
-  | "pokemon";
+  | "pokemon"
+  | "well"
+  | "stall"
+  | "rock"
+  | "banner";
 
 export interface Interactable {
   /** tile coords of the object itself */
@@ -528,6 +532,14 @@ function buildCity(): SceneDef {
       // South Exit
       { x: 19, y: 24, kind: "sign", label: "Portal Sul do Oásis", dialogue: "south-exit" },
 
+      // Desert city landmarks: visual anchors that make the map feel inhabited.
+      { x: 34, y: 17, kind: "well", label: "Poço do Oásis", dialogue: "city-well" },
+      { x: 16, y: 8, kind: "stall", label: "Barraca de Especiarias", dialogue: "city-stall" },
+      { x: 20, y: 8, kind: "stall", label: "Barraca de Artesanato", dialogue: "city-stall" },
+      { x: 15, y: 12, kind: "rock", label: "Pedras do Canyon", dialogue: "city-rock" },
+      { x: 26, y: 11, kind: "rock", label: "Pedras do Deserto", dialogue: "city-rock" },
+      { x: 17, y: 10, kind: "banner", label: "Bandeira do Oásis", dialogue: "city-banner" },
+
       // Benches
       { x: 22, y: 14, kind: "bench", label: "Banco da Praça", dialogue: "city-bench" },
       { x: 7, y: 11, kind: "bench", label: "Banco do Jardim", dialogue: "city-bench" },
@@ -552,9 +564,53 @@ function buildInterior(
   const w = 13;
   const h = 9;
   const g = makeGrid(w, h, ".");
+
+  // Every building gets a deliberate floor plan instead of a generic empty room.
+  // The center remains open for movement; decoration stays against walls.
   border(g, "W");
-  fillRect(g, 1, 1, w - 2, 1, "V"); // decorated back wall
-  set(g, 6, h - 1, "E"); // exit carpet in the wall row
+  fillRect(g, 1, 1, w - 2, 1, "V");
+
+  const floorByScene: Record<SceneId, string> = {
+    city: ".",
+    home: "i",
+    lab: "q",
+    arena: "q",
+    shop: "i",
+    inn: "i",
+    workshop: "q",
+    pokecenter: "q",
+  };
+
+  const floor = floorByScene[id];
+  fillRect(g, 1, 2, w - 2, h - 3, floor);
+
+  // Subtle checker/aisle pattern keeps rooms readable without becoming noisy.
+  for (let y = 2; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      if ((x + y) % 2 === 0 && floor !== "i") set(g, x, y, "q");
+    }
+  }
+
+  // Scene-specific visual anchors.
+  if (id === "home" || id === "inn") {
+    fillRect(g, 4, 5, 5, 2, "r");
+  }
+  if (id === "lab" || id === "pokecenter") {
+    fillRect(g, 5, 2, 3, 1, "V");
+    fillRect(g, 5, 6, 3, 1, "r");
+  }
+  if (id === "arena") {
+    fillRect(g, 4, 4, 5, 2, "r");
+  }
+  if (id === "workshop") {
+    fillRect(g, 4, 5, 5, 1, "r");
+  }
+  if (id === "shop") {
+    fillRect(g, 4, 5, 5, 1, "r");
+  }
+
+  // Door is centered and always has a clear 3-tile approach.
+  set(g, 6, h - 1, "E");
 
   return {
     id,
@@ -565,7 +621,7 @@ function buildInterior(
     hint,
     buildings: [],
     interactables,
-    exits: [{ x: 6, y: h - 1, to: "city", spawn: { x: 0, y: 0 } }],
+    exits: [{ x: 6, y: h - 1, to: "city", spawn: { x: 6, y: 7 } }],
   };
 }
 
