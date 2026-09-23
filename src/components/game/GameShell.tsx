@@ -368,6 +368,16 @@ function World({
     setSoundOn(next);
   };
 
+  const quickTravel = useCallback((target: Exclude<SceneId, "city">) => {
+    setDialogueId(null);
+    setScreen(null);
+    setCelebrationOpen(false);
+    setBattleOpponent(null);
+    setBattleTransitionTarget(null);
+    setHealingOverlay({ isOpen: false, source: "nurse" });
+    gameRef.current?.goTo(target);
+  }, []);
+
   const dialogue = dialogueId ? dialogues[dialogueId] : undefined;
 
   const activeTransition = TRANSITIONS.find((t) => t.id === transitionType) ?? TRANSITIONS[0]!;
@@ -377,7 +387,30 @@ function World({
       <header className="border-border flex flex-wrap items-center justify-between gap-3 border-b-4 px-3 py-2 bg-card/80 backdrop-blur-sm">
         <h1 className="pixel-font text-[10px] text-foreground">{scene?.title ?? "Desert Oasis"}</h1>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto">
+          {/* Quick travel: click a destination to teleport directly to its building. */}
+          {([
+            ["home", "🏠", "Casa", "Sobre mim"],
+            ["lab", "🧪", "Lab", "Tecnologias"],
+            ["arena", "⚔️", "Arena", "Projetos"],
+            ["shop", "🛒", "Loja", "Contato"],
+          ] as const).map(([target, icon, label, title]) => (
+            <button
+              key={target}
+              type="button"
+              onClick={() => quickTravel(target)}
+              className={`pixel-frame-sm flex shrink-0 items-center gap-1 px-2 py-1.5 text-[8px] transition-all hover:bg-primary/15 active:scale-95 ${
+                scene?.id === target
+                  ? "bg-primary/15 text-primary border-primary/60"
+                  : "text-foreground"
+              }`}
+              title={`Ir diretamente para ${title}`}
+            >
+              <span aria-hidden="true">{icon}</span>
+              <span className="pixel-font">{label}</span>
+            </button>
+          ))}
+
           {/* Pokemon Battle Launcher */}
           <button
             type="button"
