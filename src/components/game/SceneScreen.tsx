@@ -9,6 +9,8 @@ const stars = (level: number) => "★".repeat(Math.max(0, Math.min(5, level))).p
 
 const safeUrl = (v: string | null | undefined) => (v && /^https?:\/\//i.test(v) ? v : null);
 
+const ABOUT_TECH_IDS = ["react", "typescript", "node", "supabase", "git", "kaplay"] as const;
+
 const TITLES: Record<Exclude<SceneId, "city">, string> = {
   home: "Sobre mim",
   lab: "Habilidades",
@@ -70,22 +72,32 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
 
 function AboutSection({ data, t }: { data: PortfolioData; t: T }) {
   const photo = safeUrl(t("photoUrl"));
+  const featuredTools = ABOUT_TECH_IDS.map((id) => CODING_TOOLS.find((tool) => tool.id === id)).filter(
+    (tool): tool is (typeof CODING_TOOLS)[number] => Boolean(tool),
+  );
+
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center gap-4">
-        {photo && (
-          <img
-            src={photo}
-            alt={`Foto de ${t("playerName") || "perfil"}`}
-            loading="lazy"
-            className="pixel-frame-sm h-24 w-24 object-cover"
-          />
-        )}
-        <div>
-          <p className="pixel-font text-[11px]">{t("playerName") || "Portfólio"}</p>
-          <p className="text-muted-foreground text-sm">{t("tagline")}</p>
+      <div className="pixel-frame-sm bg-secondary/10 p-4">
+        <div className="flex flex-wrap items-center gap-4">
+          {photo && (
+            <img
+              src={photo}
+              alt={`Foto de ${t("playerName") || "perfil"}`}
+              loading="lazy"
+              className="pixel-frame-sm h-24 w-24 object-cover"
+            />
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="pixel-font text-[11px]">{t("playerName") || "Portfólio"}</p>
+            <p className="text-muted-foreground mt-1 text-sm">{t("tagline")}</p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Uma apresentação rápida de quem sou, do que construo e das tecnologias que uso no dia a dia.
+            </p>
+          </div>
         </div>
       </div>
+
       <dl className="grid grid-cols-2 gap-3 text-xs">
         {[
           ["Classe", t("homeClass")],
@@ -93,16 +105,65 @@ function AboutSection({ data, t }: { data: PortfolioData; t: T }) {
           ["Foco", t("homeFocus")],
           ["Modo", t("homeMode")],
         ].map(([k, v]) => (
-          <div key={k} className="pixel-frame-sm px-3 py-2">
+          <div key={k} className="pixel-frame-sm bg-card px-3 py-2">
             <dt className="pixel-font text-muted-foreground text-[8px] uppercase">{k}</dt>
             <dd className="mt-1">{v || "-"}</dd>
           </div>
         ))}
       </dl>
+
       {t("aboutIntro") && <Block title="Apresentação">{t("aboutIntro")}</Block>}
       {t("aboutStory") && <Block title="Trajetória">{t("aboutStory")}</Block>}
       {t("aboutSeeking") && <Block title="O que busco">{t("aboutSeeking")}</Block>}
       {t("aboutHobby") && <Block title="Fora do código">{t("aboutHobby")}</Block>}
+
+      <section className="space-y-3">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <h3 className="pixel-font text-secondary text-[9px] uppercase">Tecnologias que uso</h3>
+            <p className="text-muted-foreground mt-1 text-xs">
+              Mais do que listar ferramentas: aqui fica claro para que eu consigo usar cada uma.
+            </p>
+          </div>
+          <span className="pixel-font text-[8px] text-primary whitespace-nowrap">STACK ATUAL</span>
+        </div>
+
+        <div className="grid gap-2 sm:grid-cols-2">
+          {featuredTools.map((tool) => (
+            <div key={tool.id} className="pixel-frame-sm bg-card/80 p-3">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded border"
+                  style={{
+                    backgroundColor: tool.bgColor,
+                    borderColor: tool.borderColor,
+                  }}
+                  aria-hidden="true"
+                >
+                  {tool.icon}
+                </div>
+                <div className="min-w-0">
+                  <p className="pixel-font text-[9px]">{tool.name}</p>
+                  <p className="text-[10px] text-muted-foreground">{tool.category}</p>
+                </div>
+              </div>
+              <p className="mt-2 text-[11px] leading-snug text-primary">✦ {tool.deliverables}</p>
+              <p className="mt-1.5 text-[10px] leading-snug text-muted-foreground">
+                {tool.capabilities[0]}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="pixel-frame-sm bg-primary/5 p-3">
+          <p className="pixel-font text-[8px] uppercase text-amber-500">Como isso vira projeto</p>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            Posso combinar front-end, back-end, banco de dados e versionamento para entregar sistemas
+            completos; e também usar KAPLAY/Canvas para experiências 2D interativas como este portfólio.
+          </p>
+        </div>
+      </section>
+
       <Block title="Resumo rápido">
         {data.skills.length} habilidades cadastradas · {data.projects.length} projetos.
       </Block>
@@ -120,21 +181,89 @@ function SkillsSection({ data, t }: { data: PortfolioData; t: T }) {
   return (
     <div className="space-y-5">
       {t("skillsIntro") && <Block title="Visão geral">{t("skillsIntro")}</Block>}
-      {entries.length === 0 && <p className="text-sm">Nenhuma habilidade cadastrada ainda.</p>}
-      {entries.map(([group, list]) => (
-        <section key={group} className="space-y-2">
-          <h3 className="pixel-font text-secondary text-[9px] uppercase">{group}</h3>
-          <ul className="grid gap-2 sm:grid-cols-2">
-            {list.map((s) => (
-              <li key={s.id} className="pixel-frame-sm px-3 py-2">
-                <p className="pixel-font text-[9px]">{s.title}</p>
-                <p className="text-secondary text-xs">{stars(s.level)}</p>
-                <p className="text-muted-foreground mt-1 text-xs">{s.description}</p>
-              </li>
+
+      <section className="pixel-frame-sm bg-secondary/10 p-3">
+        <p className="pixel-font text-[9px] text-primary uppercase">Mapa de tecnologias</p>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+          Cada logo representa uma tecnologia e mostra exemplos práticos do que consigo construir com ela.
+        </p>
+      </section>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        {CODING_TOOLS.map((tool) => (
+          <article
+            key={tool.id}
+            className="pixel-frame-sm bg-card p-3"
+            style={{ borderLeft: `3px solid ${tool.color}` }}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded border"
+                style={{
+                  backgroundColor: tool.bgColor,
+                  borderColor: tool.borderColor,
+                }}
+                aria-hidden="true"
+              >
+                {tool.icon}
+              </div>
+              <div className="min-w-0">
+                <h3 className="pixel-font text-[9px]">{tool.name}</h3>
+                <p className="pixel-font text-[7px] uppercase tracking-wider text-muted-foreground">
+                  {tool.category}
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-2 text-[11px] font-medium leading-snug text-primary">
+              ✦ {tool.deliverables}
+            </p>
+
+            <ul className="mt-2 space-y-1 text-[10px] leading-snug text-muted-foreground">
+              {tool.capabilities.slice(0, 2).map((capability) => (
+                <li key={capability} className="flex gap-1.5">
+                  <span className="text-secondary">▸</span>
+                  <span>{capability}</span>
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+
+      {entries.length > 0 && (
+        <section className="space-y-2">
+          <h3 className="pixel-font text-secondary text-[9px] uppercase">Competências do curso</h3>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {entries.map(([group, list]) => (
+              <div key={group} className="pixel-frame-sm bg-card/70 px-3 py-2">
+                <p className="pixel-font text-[8px] uppercase">{group}</p>
+                <div className="mt-2 space-y-2">
+                  {list.map((s) => (
+                    <div key={s.id}>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="pixel-font text-[8px]">{s.title}</p>
+                        <p className="text-[9px] text-secondary">{stars(s.level)}</p>
+                      </div>
+                      <p className="mt-1 text-[10px] leading-snug text-muted-foreground">
+                        {s.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
-      ))}
+      )}
+
+      <div className="pixel-frame-sm bg-muted/20 p-3">
+        <p className="pixel-font text-[9px] text-amber-500 uppercase">Laboratório</p>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+          Explore os equipamentos do Lab no mapa para ver a stack de forma visual e depois entre no Dev Workshop
+          para conhecer a arquitetura por trás deste portfólio.
+        </p>
+      </div>
     </div>
   );
 }
