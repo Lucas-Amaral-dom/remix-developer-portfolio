@@ -481,59 +481,125 @@ function InnSection({ t }: { t: T }) {
 }
 
 function WorkshopSection() {
+  const layers = [
+    ["01", "Interface", "🖥️", "React + Tailwind organizam telas, componentes, responsividade e a experiência visual."],
+    ["02", "Experiência 2D", "🎮", "KAPLAY + Canvas cuidam do mapa, movimentação, colisões, sprites, cenas e transições."],
+    ["03", "Dados", "🗄️", "Supabase/PostgreSQL sustentam conteúdo persistido e informações editáveis do portfólio."],
+    ["04", "Integrações", "🔗", "APIs externas podem fornecer dados dinâmicos quando o projeto precisa deles."],
+    ["05", "Entrega", "🚀", "TypeScript + Git/GitHub ajudam a manter contratos, histórico, refatoração e evolução do código."],
+  ];
+
   return (
     <div className="space-y-5">
-      <Block title="Dev Workshop — Ferramentas & Capacidades de Desenvolvimento">
-        Conheça as ferramentas que domino, o que posso construir com cada uma e a arquitetura
-        técnica utilizada neste ecossistema.
+      <Block title="Dev Workshop — Como eu construo">
+        Esta área funciona como uma visita técnica pelo projeto. Em vez de apenas mostrar ferramentas,
+        ela explica como interface, jogo, dados, integrações e versionamento se conectam.
       </Block>
 
-      {/* Coding Tools Showcase with Official Symbols and Practical Deliverables */}
-      <div className="grid grid-cols-1 gap-3">
-        {CODING_TOOLS.map((tool) => (
-          <div
-            key={tool.id}
-            className="pixel-frame-sm p-3.5 space-y-2 bg-card"
-            style={{ borderLeft: `3px solid ${tool.color}` }}
-          >
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2.5">
+      <section className="pixel-frame-sm bg-secondary/10 p-3.5">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <p className="pixel-font text-[9px] text-primary uppercase">Arquitetura do Oásis</p>
+            <p className="mt-1 text-xs text-muted-foreground">Ideia → interface → lógica → dados → integração → entrega</p>
+          </div>
+          <span className="pixel-font text-[8px] text-amber-500">TECH FLOW</span>
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          {layers.map(([number, title, icon, description]) => (
+            <article key={number} className="pixel-frame-sm bg-card/80 p-3">
+              <div className="flex items-start gap-2.5">
+                <span className="text-lg" aria-hidden="true">{icon}</span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="pixel-font text-[7px] text-muted-foreground">{number}</span>
+                    <h3 className="pixel-font text-[9px]">{title}</h3>
+                  </div>
+                  <p className="mt-1.5 text-[10px] leading-relaxed text-muted-foreground">{description}</p>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="pixel-frame-sm bg-card p-3.5">
+        <p className="pixel-font text-secondary text-[9px] uppercase">Fluxo de desenvolvimento</p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-5">
+          {[
+            ["01", "Planejar", "definir objetivo"],
+            ["02", "Modelar", "organizar dados"],
+            ["03", "Construir", "implementar"],
+            ["04", "Integrar", "conectar serviços"],
+            ["05", "Entregar", "testar e versionar"],
+          ].map(([number, title, description]) => (
+            <div key={number} className="pixel-frame-sm bg-secondary/5 p-2.5">
+              <p className="pixel-font text-[7px] text-primary">{number}</p>
+              <p className="pixel-font mt-1 text-[8px]">{title}</p>
+              <p className="mt-1 text-[9px] leading-snug text-muted-foreground">{description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="space-y-2">
+        <div>
+          <h3 className="pixel-font text-secondary text-[9px] uppercase">Estações de trabalho</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Abra uma tecnologia para ver sua função e os tipos de entrega associados a ela.
+          </p>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {CODING_TOOLS.map((tool) => (
+            <details key={tool.id} className="pixel-frame-sm bg-card" style={{ borderLeft: `3px solid ${tool.color}` }}>
+              <summary className="flex cursor-pointer list-none items-center gap-2.5 p-3 [&::-webkit-details-marker]:hidden">
                 <div
-                  className="p-1.5 rounded"
-                  style={{ backgroundColor: tool.bgColor, border: `1px solid ${tool.borderColor}` }}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded border"
+                  style={{ backgroundColor: tool.bgColor, borderColor: tool.borderColor }}
+                  aria-hidden="true"
                 >
                   {tool.icon}
                 </div>
-                <div>
-                  <h4 className="pixel-font text-[10px] text-foreground">{tool.name}</h4>
-                  <span className="pixel-font text-[7px] uppercase tracking-wider text-muted-foreground">
-                    {tool.category}
-                  </span>
+                <div className="min-w-0 flex-1">
+                  <p className="pixel-font text-[9px]">{tool.name}</p>
+                  <p className="text-[9px] text-muted-foreground">{tool.category}</p>
                 </div>
+                <span className="text-primary text-xs">+</span>
+              </summary>
+              <div className="border-t border-border/60 px-3 pb-3 pt-2.5">
+                <p className="text-[10px] leading-snug text-primary">✦ {tool.deliverables}</p>
+                <ul className="mt-2 space-y-1 text-[10px] leading-snug text-muted-foreground">
+                  {tool.capabilities.map((capability) => (
+                    <li key={capability} className="flex gap-1.5">
+                      <span className="text-secondary">▸</span>
+                      <span>{capability}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
+            </details>
+          ))}
+        </div>
+      </section>
 
-            <p className="text-xs font-medium text-primary">✦ {tool.deliverables}</p>
-
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1 text-[11px] text-muted-foreground">
-              {tool.capabilities.map((cap, idx) => (
-                <li key={idx} className="flex items-start gap-1.5 leading-snug">
-                  <span className="text-secondary select-none">▸</span>
-                  <span>{cap}</span>
-                </li>
-              ))}
-            </ul>
+      <section className="pixel-frame-sm bg-primary/5 p-3.5">
+        <p className="pixel-font text-[9px] text-amber-500 uppercase">Este portfólio também é um projeto</p>
+        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+          <div>
+            <p className="pixel-font text-[8px]">O que ele reúne</p>
+            <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">
+              Interface React, tipagem TypeScript, conteúdo persistido, integrações, jogo 2D, sprites,
+              áudio e navegação entre cenas.
+            </p>
           </div>
-        ))}
-      </div>
-
-      <div className="pixel-frame-sm p-3 space-y-1 bg-muted/20">
-        <p className="pixel-font text-[9px] text-amber-500 uppercase">Boas Práticas & Pixel Art</p>
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          Renderização crisp em escala inteira, sem filtros de anti-aliasing borrados, código
-          componentizado, zero erros de compilação e tipagem rigorosa de ponta a ponta.
-        </p>
-      </div>
+          <div>
+            <p className="pixel-font text-[8px]">O que demonstra</p>
+            <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">
+              Capacidade de conectar diferentes partes de um sistema e transformar conteúdo técnico
+              em uma experiência interativa.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
