@@ -126,6 +126,9 @@ const PALETTE: Record<string, [number, number, number]> = {
   ".": [238, 224, 196], // indoor wooden floor
   V: [150, 116, 92], // indoor back wall
   E: [214, 72, 72], // indoor exit mat
+  i: [198, 154, 108], // warm indoor wood
+  q: [184, 194, 204], // cool indoor tile
+  r: [148, 86, 74], // interior rug
 };
 
 export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
@@ -880,6 +883,48 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         box(4, 20, 4, 10, [126, 88, 56]);
         box(24, 20, 4, 10, [126, 88, 56]);
         break;
+      case "well": {
+        // Stone desert well: a readable landmark and a natural gathering point.
+        box(3, 13, 26, 13, [142, 126, 112], 6);
+        box(6, 8, 20, 8, [188, 160, 126], 7);
+        box(9, 10, 14, 8, [48, 94, 116], 8);
+        k.add([k.rect(20, 3), k.pos(px + 6, py + 4), k.color(116, 78, 48), k.z(9)]);
+        const water = k.add([
+          k.circle(3),
+          k.pos(px + 16, py + 14),
+          k.color(120, 210, 236),
+          k.opacity(0.7),
+          k.z(10),
+        ]) as unknown as { scale: { x: number; y: number } };
+        k.onUpdate(() => {
+          water.scale.x = 0.8 + Math.sin(k.time() * 2.8 + item.x) * 0.15;
+          water.scale.y = 0.8 + Math.cos(k.time() * 2.8 + item.y) * 0.1;
+        });
+        break;
+      }
+      case "stall": {
+        // Small market canopy suited to a desert bazaar.
+        box(2, 16, 28, 12, [146, 92, 58], 6);
+        box(1, 3, 30, 13, [202, 78, 52], 7);
+        box(5, 6, 22, 7, [238, 190, 118], 8);
+        box(5, 21, 4, 9, [116, 78, 50], 8);
+        box(23, 21, 4, 9, [116, 78, 50], 8);
+        break;
+      }
+      case "rock": {
+        // Low canyon stones to break up empty sand without blocking the path.
+        box(5, 17, 22, 10, [122, 94, 76], 6);
+        box(9, 11, 14, 9, [166, 130, 100], 7);
+        box(12, 8, 8, 5, [194, 156, 116], 8);
+        break;
+      }
+      case "banner": {
+        // Decorative oasis banner adds vertical color without occupying the road.
+        box(14, 5, 4, 25, [102, 72, 48], 7);
+        box(8, 4, 20, 10, [194, 62, 52], 8);
+        box(11, 7, 14, 4, [238, 190, 92], 9);
+        break;
+      }
       case "sign":
         box(13, 14, 6, 16, [140, 100, 66], 9);
         box(2, 2, 28, 16, [196, 150, 100], 10);
