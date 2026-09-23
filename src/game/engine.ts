@@ -20,7 +20,7 @@ import pokemartSprite from "@/assets/build-pokemart.png";
 import innSprite from "@/assets/build-inn.png";
 import workshopSprite from "@/assets/build-workshop.png";
 import cottageSprite from "@/assets/build-cottage.png";
-import trainerCharactersSheet from "@/assets/trainer-characters.png";
+import trainerIdleAtlas from "@/assets/trainers-overworld-idle-atlas.png";
 import doorModernSprite from "@/assets/door-modern.png";
 import doorWoodSprite from "@/assets/door-wood.png";
 
@@ -85,19 +85,21 @@ const SPRITES: Record<string, string> = {
  * 4 columns (idle, step A, idle, step B) and 4 rows per character
  * (down, left, right, up). Character 0 is the player.
  */
-/** trainer-characters.png contains 8 clearly visible trainer sprites in a horizontal strip.
- * Frame 0 is the player; frames 1..7 are NPC variants.
- * Assets are cropped from the supplied RPG Maker trainer pack and rendered pixel-perfect.
+/** Real overworld trainer atlas built from the supplied trainer assets.
+ * 5 variants: Red (player) + Leaf, Brendan, May and Serena (NPCs).
+ * Each variant has 4 native 32x48 idle directional cells: down, left, right, up.
  */
-const TRAINER_FRAME_COUNT = 8;
-const npcTrainerFrame = (id: number) => 1 + (Math.abs(id) % (TRAINER_FRAME_COUNT - 1));
+const TRAINER_VARIANTS = 5;
+const TRAINER_DIR_INDEX: Record<Dir, number> = { down: 0, left: 1, right: 2, up: 3 };
+const trainerFrame = (variant: number, dir: Dir) =>
+  (Math.abs(variant) % TRAINER_VARIANTS) * 4 + TRAINER_DIR_INDEX[dir];
+const npcTrainerVariant = (id: number) => 1 + (Math.abs(id) % (TRAINER_VARIANTS - 1));
 
 /** minimal structural types so we can mutate kaplay objects with strict TS */
 type LeafObj = { width: number; pos: { x: number; y: number } };
 type PlayerObj = {
   pos: { x: number; y: number };
   frame: number;
-  flipX: boolean;
   facing: Dir;
   step: number;
 };
@@ -157,7 +159,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
   });
 
   for (const [name, src] of Object.entries(SPRITES)) k.loadSprite(name, src);
-  k.loadSprite("trainer-chars", trainerCharactersSheet, { sliceX: TRAINER_FRAME_COUNT, sliceY: 1 });
+  k.loadSprite("trainer-chars", trainerIdleAtlas, { sliceX: TRAINER_VARIANTS * 4, sliceY: 1 });
   k.loadSprite("door-modern", doorModernSprite, { sliceX: 4, sliceY: 1 });
   k.loadSprite("door-wood", doorWoodSprite, { sliceX: 4, sliceY: 1 });
 
@@ -606,7 +608,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
 
   interface ActiveNpc {
     item: Interactable;
-    trainerFrame: number;
+    trainerVariant: number;
     facing: Dir;
     homeCol: number;
     homeRow: number;
@@ -621,7 +623,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
     targetX: number;
     targetY: number;
     canWander: boolean;
-    spr: { frame: number; flipX: boolean; pos: { x: number; y: number } };
+    spr: { frame: number; pos: { x: number; y: number } };
     shadow: { pos: { x: number; y: number } };
     emote: { opacity: number; pos: { x: number; y: number } };
   }
@@ -945,8 +947,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       { facing: initialFacing, step: 0 },
       "player",
     ]);
-    (p as unknown as PlayerObj).flipX = initialFacing === "left";
-    return p;
+        return p;
   }
 
   function isSolid(rows: string[], col: number, row: number) {
@@ -1228,7 +1229,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
     // Autonomous Dynamic NPC System
     const activeNpcs: ActiveNpc[] = [];
     for (const item of npcInteractables) {
-      const trainerFrame = npcTrainerFrame(item.npc ?? 0);
+      const trainerVariant = npcTrainerVariant(item.npc ?? 0);
       const face = item.face ?? "down";
       const px = item.x * TILE + TILE / 2;
       const py = item.y * TILE + TILE;
@@ -1245,12 +1246,12 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
 
       // Sprite component (clean standing idle pose with integer pixel scale 1.0)
       const spr = k.add([
-        k.sprite("trainer-chars", { frame: trainerFrame }),
+        k.sprite("trainer-chars", { frame: trainerFrame(trainerVariant, face) }),
         k.pos(px, py),
         k.anchor("bot"),
         k.scale(1.0),
         k.z(20),
-      ]) as unknown as { frame: number; flipX: boolean; pos: { x: number; y: number } };
+      ]) as unknown as { frame: number; pos: { x: number; y: number } };
 
       // Reaction emote bubble
       const emote = k.add([
@@ -1271,7 +1272,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
 
       activeNpcs.push({
         item,
-        trainerFrame,
+        trainerVariant,
         facing: face,
         homeCol: item.x,
         homeRow: item.y,
@@ -1410,15 +1411,13 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       // Update active NPCs with authentic Pokemon movement AI
       for (const npc of activeNpcs) {
         if (state.paused || npc.state === "talking") {
-          npc.spr.frame = npc.trainerFrame;
-          npc.spr.flipX = npc.facing === "left";
+          npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing);
           continue;
         }
 
         if (npc.state === "idle") {
           // Always maintain clean standing idle pose (frame 0) with zero twitching
-          npc.spr.frame = npc.trainerFrame;
-          npc.spr.flipX = npc.facing === "left";
+          npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing);
           npc.idleTimer -= k.dt();
 
           if (npc.idleTimer <= 0) {
@@ -1426,8 +1425,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
             if (!npc.canWander || Math.random() < 0.4) {
               // Just look in a new direction
               npc.facing = dirs[Math.floor(Math.random() * dirs.length)]!;
-              npc.spr.frame = npc.trainerFrame;
-          npc.spr.flipX = npc.facing === "left";
+              npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing);
               npc.idleTimer = 1.8 + Math.random() * 2.5;
             } else {
               // Choose a step to walk
@@ -1480,8 +1478,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           // 0.75..1.00 -> Frame 0 (neutral standing)
           const stepPhase = Math.floor(prog * 4);
           const walkCycle = [1, 0, 3, 0];
-          npc.spr.frame = npc.trainerFrame;
-          npc.spr.flipX = npc.facing === "left";
+          npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing);
 
           const curPx = npc.fromX + (npc.targetX - npc.fromX) * prog;
           const curPy = npc.fromY + (npc.targetY - npc.fromY) * prog;
@@ -1500,8 +1497,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
             npc.item.x = npc.curCol;
             npc.item.y = npc.curRow;
             npc.state = "idle";
-            npc.spr.frame = npc.trainerFrame;
-          npc.spr.flipX = npc.facing === "left";
+            npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing);
             npc.spr.pos.y = curPy;
             npc.idleTimer = 1.8 + Math.random() * 2.5;
           }
@@ -1570,17 +1566,14 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         if (movedDist > 0.001) {
           player.step += (movedDist / TILE) * 7.5;
           const cycle = [0, 1, 2, 3];
-          player.frame = 0;
-          player.flipX = player.facing === "left";
+          player.frame = trainerFrame(0, player.facing);
         } else {
           player.step = 0;
-          player.frame = 0;
-        player.flipX = player.facing === "left";
+          player.frame = trainerFrame(0, player.facing);
         }
       } else {
         player.step = 0;
-        player.frame = 0;
-        player.flipX = player.facing === "left";
+        player.frame = trainerFrame(0, player.facing);
       }
 
       // Check nearest interaction or door
@@ -1646,8 +1639,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
                   } else {
                     matchedNpc.facing = diffY > 0 ? "down" : "up";
                   }
-                  matchedNpc.spr.frame = matchedNpc.trainerFrame;
-                  matchedNpc.spr.flipX = matchedNpc.facing === "left";
+                  matchedNpc.spr.frame = trainerFrame(matchedNpc.trainerVariant, matchedNpc.facing);
                   matchedNpc.emote.opacity = 1;
                   k.wait(0.8, () => {
                     matchedNpc.emote.opacity = 0;
@@ -1729,8 +1721,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         doorObj.apply(1);
         if (activePlayer) {
           activePlayer.facing = "up";
-          activePlayer.frame = 0;
-          activePlayer.flipX = false;
+          activePlayer.frame = trainerFrame(0, "up");
           activePlayer.pos.x = doorObj.x * TILE + TILE / 2;
           activePlayer.pos.y = doorObj.y * TILE + 2;
         }
