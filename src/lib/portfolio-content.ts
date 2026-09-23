@@ -276,6 +276,30 @@ export function buildDialogues(data: PortfolioData): Record<string, Dialogue> {
     speaker: "Banco",
     pages: [{ text: "Um banco de praça. Bom lugar pra revisar ideias." }],
   };
+  out["city-well"] = {
+    speaker: "Poço do Oásis",
+    pages: [
+      { text: "Um antigo poço de pedra que abastece a cidade nos dias mais secos." },
+      { text: "Aqui a cidade lembra que bons sistemas precisam de uma base confiável." },
+    ],
+  };
+  out["city-stall"] = {
+    speaker: "Mercado do Oásis",
+    pages: [
+      { text: "Barraca de especiarias, artesanato e pequenos suprimentos para quem cruza o deserto." },
+      { text: "Os detalhes dão personalidade à cidade — como uma boa interface dá personalidade a um projeto." },
+    ],
+  };
+  out["city-rock"] = {
+    speaker: "Pedras do Canyon",
+    pages: [{ text: "Fragmentos do canyon vermelho usados como decoração nas ruas do Oásis." }],
+  };
+  out["city-banner"] = {
+    speaker: "Bandeira do Oásis",
+    pages: [{ text: "As cores da cidade: areia, terracota, água e ouro." }],
+  };
+
+
   out["city-fountain"] = {
     speaker: "Fonte",
     pages: [{ text: "A fonte da cidade. Jogue uma moeda e faça um deploy sem bugs." }],
