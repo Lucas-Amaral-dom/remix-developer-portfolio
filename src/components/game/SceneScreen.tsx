@@ -78,7 +78,7 @@ function AboutSection({ data, t }: { data: PortfolioData; t: T }) {
 
   return (
     <div className="space-y-5">
-      <div className="pixel-frame-sm bg-secondary/10 p-4">
+      <section className="pixel-frame-sm bg-secondary/10 p-4">
         <div className="flex flex-wrap items-center gap-4">
           {photo && (
             <img
@@ -91,21 +91,22 @@ function AboutSection({ data, t }: { data: PortfolioData; t: T }) {
           <div className="min-w-0 flex-1">
             <p className="pixel-font text-[11px]">{t("playerName") || "Portfólio"}</p>
             <p className="text-muted-foreground mt-1 text-sm">{t("tagline")}</p>
-            <p className="text-xs text-muted-foreground mt-2">
-              Uma apresentação rápida de quem sou, do que construo e das tecnologias que uso no dia a dia.
+            <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
+              Um perfil rápido para entender minha formação, meu jeito de aprender e os tipos de
+              sistemas que gosto de construir.
             </p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <dl className="grid grid-cols-2 gap-3 text-xs">
+      <dl className="grid grid-cols-2 gap-2.5 text-xs">
         {[
           ["Classe", t("homeClass")],
           ["Origem", t("homeOrigin")],
           ["Foco", t("homeFocus")],
           ["Modo", t("homeMode")],
         ].map(([k, v]) => (
-          <div key={k} className="pixel-frame-sm bg-card px-3 py-2">
+          <div key={k} className="pixel-frame-sm bg-card px-3 py-2.5">
             <dt className="pixel-font text-muted-foreground text-[8px] uppercase">{k}</dt>
             <dd className="mt-1">{v || "-"}</dd>
           </div>
@@ -113,59 +114,94 @@ function AboutSection({ data, t }: { data: PortfolioData; t: T }) {
       </dl>
 
       {t("aboutIntro") && <Block title="Apresentação">{t("aboutIntro")}</Block>}
-      {t("aboutStory") && <Block title="Trajetória">{t("aboutStory")}</Block>}
-      {t("aboutSeeking") && <Block title="O que busco">{t("aboutSeeking")}</Block>}
+
+      <section className="space-y-2.5">
+        <h3 className="pixel-font text-secondary text-[9px] uppercase">Minha jornada</h3>
+        <div className="grid gap-2">
+          <article className="pixel-frame-sm bg-card/80 p-3">
+            <div className="flex items-start gap-2.5">
+              <span className="pixel-font text-primary text-[9px]">01</span>
+              <div>
+                <p className="pixel-font text-[9px]">Formação</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  {t("tagline") || "Técnico em Desenvolvimento de Sistemas — SENAI Criciúma"}
+                </p>
+              </div>
+            </div>
+          </article>
+          <article className="pixel-frame-sm bg-card/80 p-3">
+            <div className="flex items-start gap-2.5">
+              <span className="pixel-font text-primary text-[9px]">02</span>
+              <div>
+                <p className="pixel-font text-[9px]">Construindo na prática</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  {t("aboutStory") || "Projetos web de ponta a ponta: interface, API e banco de dados."}
+                </p>
+              </div>
+            </div>
+          </article>
+          <article className="pixel-frame-sm bg-card/80 p-3">
+            <div className="flex items-start gap-2.5">
+              <span className="pixel-font text-primary text-[9px]">03</span>
+              <div>
+                <p className="pixel-font text-[9px]">Próximo objetivo</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  {t("aboutSeeking") || "Continuar aprendendo e transformar estudo em projetos reais."}
+                </p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
       {t("aboutHobby") && <Block title="Fora do código">{t("aboutHobby")}</Block>}
 
       <section className="space-y-3">
-        <div className="flex items-end justify-between gap-3">
-          <div>
-            <h3 className="pixel-font text-secondary text-[9px] uppercase">Tecnologias que uso</h3>
-            <p className="text-muted-foreground mt-1 text-xs">
-              Mais do que listar ferramentas: aqui fica claro para que eu consigo usar cada uma.
-            </p>
-          </div>
-          <span className="pixel-font text-[8px] text-primary whitespace-nowrap">STACK ATUAL</span>
+        <div>
+          <h3 className="pixel-font text-secondary text-[9px] uppercase">Tecnologias no meu kit</h3>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            Em vez de só listar ferramentas, esta parte mostra onde cada tecnologia entra quando um
+            projeto sai da ideia e vira produto.
+          </p>
         </div>
 
         <div className="grid gap-2 sm:grid-cols-2">
           {featuredTools.map((tool) => (
-            <div key={tool.id} className="pixel-frame-sm bg-card/80 p-3">
-              <div className="flex items-center gap-2.5">
+            <details key={tool.id} className="pixel-frame-sm bg-card/80 group">
+              <summary className="flex cursor-pointer list-none items-center gap-2.5 p-3 [&::-webkit-details-marker]:hidden">
                 <div
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded border"
-                  style={{
-                    backgroundColor: tool.bgColor,
-                    borderColor: tool.borderColor,
-                  }}
+                  style={{ backgroundColor: tool.bgColor, borderColor: tool.borderColor }}
                   aria-hidden="true"
                 >
                   {tool.icon}
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="pixel-font text-[9px]">{tool.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{tool.category}</p>
+                  <p className="text-[10px] text-muted-foreground">{tool.deliverables}</p>
                 </div>
+                <span className="text-primary text-xs transition-transform group-open:rotate-90">›</span>
+              </summary>
+              <div className="border-t border-border/60 px-3 pb-3 pt-2">
+                <p className="text-[10px] leading-snug text-muted-foreground">
+                  {tool.capabilities.slice(0, 2).join(" · ")}
+                </p>
               </div>
-              <p className="mt-2 text-[11px] leading-snug text-primary">✦ {tool.deliverables}</p>
-              <p className="mt-1.5 text-[10px] leading-snug text-muted-foreground">
-                {tool.capabilities[0]}
-              </p>
-            </div>
+            </details>
           ))}
-        </div>
-
-        <div className="pixel-frame-sm bg-primary/5 p-3">
-          <p className="pixel-font text-[8px] uppercase text-amber-500">Como isso vira projeto</p>
-          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-            Posso combinar front-end, back-end, banco de dados e versionamento para entregar sistemas
-            completos; e também usar KAPLAY/Canvas para experiências 2D interativas como este portfólio.
-          </p>
         </div>
       </section>
 
+      <div className="pixel-frame-sm bg-primary/5 p-3">
+        <p className="pixel-font text-[8px] uppercase text-amber-500">Como eu penso o desenvolvimento</p>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+          Entender o problema → organizar dados e responsabilidades → construir a interface → integrar
+          serviços → versionar → testar e ajustar. A ideia é aprender construindo, não só acumulando ferramentas.
+        </p>
+      </div>
+
       <Block title="Resumo rápido">
-        {data.skills.length} habilidades cadastradas · {data.projects.length} projetos.
+        {data.skills.length} áreas de habilidade cadastradas · {data.projects.length} projetos.
       </Block>
     </div>
   );
@@ -178,57 +214,85 @@ function SkillsSection({ data, t }: { data: PortfolioData; t: T }) {
   }, {});
   const entries = Object.entries(groups);
 
+  const categories = Array.from(new Set(CODING_TOOLS.map((tool) => tool.category)));
+  const categoryLabels: Record<string, string> = {
+    Frontend: "Frontend",
+    Backend: "Backend",
+    Database: "Dados",
+    "Game & Creative": "Game & 2D",
+    Tooling: "Ferramentas",
+  };
+
   return (
     <div className="space-y-5">
       {t("skillsIntro") && <Block title="Visão geral">{t("skillsIntro")}</Block>}
 
       <section className="pixel-frame-sm bg-secondary/10 p-3">
-        <p className="pixel-font text-[9px] text-primary uppercase">Mapa de tecnologias</p>
+        <p className="pixel-font text-[9px] text-primary uppercase">Tech Lab</p>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          Cada logo representa uma tecnologia e mostra exemplos práticos do que consigo construir com ela.
+          Cada tecnologia funciona como uma estação de trabalho: você consegue abrir os detalhes e
+          ver para que ela serve e o que pode ser construído com ela.
         </p>
       </section>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        {CODING_TOOLS.map((tool) => (
-          <article
-            key={tool.id}
-            className="pixel-frame-sm bg-card p-3"
-            style={{ borderLeft: `3px solid ${tool.color}` }}
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded border"
-                style={{
-                  backgroundColor: tool.bgColor,
-                  borderColor: tool.borderColor,
-                }}
-                aria-hidden="true"
-              >
-                {tool.icon}
+      <div className="space-y-4">
+        {categories.map((category) => {
+          const tools = CODING_TOOLS.filter((tool) => tool.category === category);
+          return (
+            <section key={category} className="space-y-2">
+              <div className="flex items-end justify-between gap-3">
+                <h3 className="pixel-font text-secondary text-[9px] uppercase">
+                  {categoryLabels[category] ?? category}
+                </h3>
+                <span className="pixel-font text-[7px] text-muted-foreground">
+                  {tools.length} estação{tools.length === 1 ? "" : "ões"}
+                </span>
               </div>
-              <div className="min-w-0">
-                <h3 className="pixel-font text-[9px]">{tool.name}</h3>
-                <p className="pixel-font text-[7px] uppercase tracking-wider text-muted-foreground">
-                  {tool.category}
-                </p>
+
+              <div className="grid gap-2 sm:grid-cols-2">
+                {tools.map((tool) => (
+                  <details
+                    key={tool.id}
+                    className="pixel-frame-sm bg-card"
+                    style={{ borderLeft: `3px solid ${tool.color}` }}
+                  >
+                    <summary className="flex cursor-pointer list-none items-center gap-3 p-3 [&::-webkit-details-marker]:hidden">
+                      <div
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded border"
+                        style={{
+                          backgroundColor: tool.bgColor,
+                          borderColor: tool.borderColor,
+                        }}
+                        aria-hidden="true"
+                      >
+                        {tool.icon}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="pixel-font text-[9px]">{tool.name}</h4>
+                        <p className="mt-1 text-[10px] leading-snug text-muted-foreground">
+                          {tool.deliverables}
+                        </p>
+                      </div>
+                      <span className="text-primary text-xs">+</span>
+                    </summary>
+
+                    <div className="border-t border-border/60 px-3 pb-3 pt-2.5">
+                      <p className="pixel-font text-[7px] uppercase text-primary">O que consigo fazer</p>
+                      <ul className="mt-1.5 space-y-1 text-[10px] leading-snug text-muted-foreground">
+                        {tool.capabilities.slice(0, 3).map((capability) => (
+                          <li key={capability} className="flex gap-1.5">
+                            <span className="text-secondary">▸</span>
+                            <span>{capability}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </details>
+                ))}
               </div>
-            </div>
-
-            <p className="mt-2 text-[11px] font-medium leading-snug text-primary">
-              ✦ {tool.deliverables}
-            </p>
-
-            <ul className="mt-2 space-y-1 text-[10px] leading-snug text-muted-foreground">
-              {tool.capabilities.slice(0, 2).map((capability) => (
-                <li key={capability} className="flex gap-1.5">
-                  <span className="text-secondary">▸</span>
-                  <span>{capability}</span>
-                </li>
-              ))}
-            </ul>
-          </article>
-        ))}
+            </section>
+          );
+        })}
       </div>
 
       {entries.length > 0 && (
@@ -245,9 +309,7 @@ function SkillsSection({ data, t }: { data: PortfolioData; t: T }) {
                         <p className="pixel-font text-[8px]">{s.title}</p>
                         <p className="text-[9px] text-secondary">{stars(s.level)}</p>
                       </div>
-                      <p className="mt-1 text-[10px] leading-snug text-muted-foreground">
-                        {s.description}
-                      </p>
+                      <p className="mt-1 text-[10px] leading-snug text-muted-foreground">{s.description}</p>
                     </div>
                   ))}
                 </div>
@@ -258,10 +320,10 @@ function SkillsSection({ data, t }: { data: PortfolioData; t: T }) {
       )}
 
       <div className="pixel-frame-sm bg-muted/20 p-3">
-        <p className="pixel-font text-[9px] text-amber-500 uppercase">Laboratório</p>
+        <p className="pixel-font text-[9px] text-amber-500 uppercase">Rota pelo mapa</p>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          Explore os equipamentos do Lab no mapa para ver a stack de forma visual e depois entre no Dev Workshop
-          para conhecer a arquitetura por trás deste portfólio.
+          Lab mostra as tecnologias. Workshop mostra como elas se encaixam. Arena mostra o resultado em
+          projetos. O portfólio inteiro passa a contar a mesma história.
         </p>
       </div>
     </div>
