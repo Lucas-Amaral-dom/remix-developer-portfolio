@@ -14,24 +14,24 @@ const SPEAKER_VARIANTS: Record<string, number> = {
   Lucas: 0,
   "Lucas Amaral": 0,
   Guia: 1,
-  "Guia do Oásis": 1,
-  "Pescadora do Oásis": 2,
-  "Viajante do Deserto": 2,
+  "Guia do Oásis": 0,
+  "Pescadora do Oásis": 4,
+  "Viajante do Deserto": 1,
   "Campista Dev": 3,
-  "Desenvolvedor da Oficina": 4,
-  "Desenvolvedor Full Stack": 4,
-  "Mecânica de Software": 3,
-  "Lutador de Sparring": 1,
+  "Desenvolvedor da Oficina": 5,
+  "Desenvolvedor Full Stack": 5,
+  "Mecânica de Software": 4,
+  "Lutador de Sparring": 2,
   "Mestre da Arena": 2,
-  "Ranger do Santuário": 3,
-  "Mercador do Bazar": 4,
-  "Mercador de Frutas e Itens": 4,
-  "Hoteleira do Oásis": 1,
-  "Enfermeira Joy": 2,
-  "Arquiteto de Software": 4,
-  "Instrutor SENAI": 4,
-  "Juíza da Arena": 1,
-  Atendente: 2,
+  "Ranger do Santuário": 4,
+  "Mercador do Bazar": 5,
+  "Mercador de Frutas e Itens": 5,
+  "Hoteleira do Oásis": 3,
+  "Enfermeira Joy": 4,
+  "Arquiteto de Software": 5,
+  "Instrutor SENAI": 5,
+  "Juíza da Arena": 2,
+  Atendente: 4,
 };
 
 function TrainerAvatar({ speaker }: { speaker: string }) {
@@ -39,10 +39,10 @@ function TrainerAvatar({ speaker }: { speaker: string }) {
   // trainer-overworld-idle-atlas: 5 variants × 16 frames, 32×48 per cell.
   // Show the first (down/idle) frame at 2× scale so the dialogue portrait
   // and the map NPC share the exact same pixel source.
-  const cell = 32 * 2;
-  const frame = variant * 16;
-  const x = -(frame % 20) * cell;
-  const y = -Math.floor(frame / 20) * 48 * 2;
+  // The same 6-variant atlas used by the map: each trainer occupies
+  // one 128×192 sheet. Display that sheet at 50% for a clean 64×96 portrait.
+  const x = -variant * 64;
+  const y = 0;
   return (
     <div
       aria-label={speaker}
@@ -50,7 +50,7 @@ function TrainerAvatar({ speaker }: { speaker: string }) {
       style={{
         backgroundImage: 'url("/assets/trainers-overworld-idle-atlas.png")',
         backgroundRepeat: "no-repeat",
-        backgroundSize: "1280px 384px",
+        backgroundSize: "384px 96px",
         backgroundPosition: `${x}px ${y}px`,
         imageRendering: "pixelated",
       }}
