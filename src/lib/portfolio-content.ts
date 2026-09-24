@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 
 export interface SkillRow {
   id: string;
@@ -154,6 +154,13 @@ export const portfolioQuery = {
   refetchOnWindowFocus: true,
   refetchInterval: 8000,
   queryFn: async (): Promise<PortfolioData> => {
+    // Preview/development environments may not provide Supabase credentials.
+    // Do not hammer a placeholder endpoint every few seconds: the local defaults
+    // are intentionally complete enough to render the portfolio.
+    if (!isSupabaseConfigured()) {
+      return DEFAULT_PORTFOLIO_DATA;
+    }
+
     try {
       const [contentRes, skillsRes, projectsRes] = await Promise.all([
         supabase.from("site_content").select("key,value"),
