@@ -330,89 +330,146 @@ function SkillsSection({ data, t }: { data: PortfolioData; t: T }) {
   );
 }
 
+function projectPreviewUrl(p: PortfolioData["projects"][number]) {
+  const id = p.id.toLowerCase();
+  const title = p.title.toLowerCase();
+
+  if (id.includes("proj-1") || title.includes("biblioteca")) {
+    return "https://raw.githubusercontent.com/Lucas-Amaral-dom/biblioteca-front/main/public/logo512.png";
+  }
+  if (id.includes("proj-2") || title.includes("guarda")) {
+    return "https://raw.githubusercontent.com/Lucas-Amaral-dom/projeto_guardavidas/main/public/logo-cbmsc.png";
+  }
+  if (id.includes("proj-3") || title.includes("rpg") || title.includes("portfólio")) {
+    return "https://raw.githubusercontent.com/Lucas-Amaral-dom/portfolio/main/assets/center.jpg";
+  }
+  return null;
+}
+
 function ProjectsSection({ data, t }: { data: PortfolioData; t: T }) {
   const githubProfile = safeUrl(t("contactGithub")) || "https://github.com/Lucas-Amaral-dom";
 
   return (
-    <div className="space-y-5">
-      {/* GitHub Showcase Banner */}
-      <div className="pixel-frame-sm p-4 space-y-3 bg-card border-2 border-primary/30">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <svg
-              viewBox="0 0 24 24"
-              className="w-6 h-6 fill-current text-primary"
-              aria-hidden="true"
-            >
-              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-            </svg>
-            <div>
-              <p className="pixel-font text-[10px] text-primary">REPOSITÓRIOS NO GITHUB</p>
-              <p className="text-xs text-muted-foreground">
-                Projetos reais com código aberto e commits documentados
-              </p>
-            </div>
+    <div className="space-y-6">
+      <section className="pixel-frame bg-gradient-to-br from-card via-card to-primary/10 p-4 md:p-5">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="pixel-font text-[8px] uppercase tracking-widest text-secondary">Arena de Projetos</p>
+            <h2 className="pixel-font mt-2 text-sm text-foreground md:text-base">Projetos que saíram do papel</h2>
+            <p className="mt-2 max-w-2xl text-xs leading-relaxed text-muted-foreground">
+              Cada projeto abaixo representa uma etapa prática da minha formação: interface, API,
+              banco de dados, regras de negócio e este próprio portfólio como experiência 2D.
+            </p>
           </div>
           <a
             href={githubProfile}
             target="_blank"
             rel="noreferrer noopener"
-            className="pixel-font pixel-press bg-primary text-primary-foreground px-3 py-2 text-[9px] uppercase inline-flex items-center gap-2"
+            className="pixel-font pixel-press inline-flex items-center justify-center gap-2 bg-primary px-3 py-2 text-[8px] uppercase text-primary-foreground"
           >
-            <span>Ver Perfil GitHub</span>
-            <span>↗</span>
+            GitHub ↗
           </a>
         </div>
-      </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="pixel-frame-sm bg-background/40 p-3">
+            <p className="pixel-font text-[7px] text-muted-foreground">PROJETOS</p>
+            <p className="pixel-font mt-1 text-lg text-primary">{data.projects.length}</p>
+          </div>
+          <div className="pixel-frame-sm bg-background/40 p-3">
+            <p className="pixel-font text-[7px] text-muted-foreground">STACK</p>
+            <p className="mt-1 text-[10px]">React · TypeScript · APIs</p>
+          </div>
+          <div className="pixel-frame-sm bg-background/40 p-3">
+            <p className="pixel-font text-[7px] text-muted-foreground">FOCO</p>
+            <p className="mt-1 text-[10px]">Aprender construindo</p>
+          </div>
+        </div>
+      </section>
 
       {t("projectsIntro") && <Block title="Sobre os projetos">{t("projectsIntro")}</Block>}
       {data.projects.length === 0 && <p className="text-sm">Nenhum projeto cadastrado ainda.</p>}
-      <ul className="space-y-3">
-        {data.projects.map((p) => {
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        {data.projects.map((p, index) => {
           const links = [
-            ["Repo front-end", safeUrl(p.front_url)],
-            ["Repo back-end", safeUrl(p.back_url)],
-            ["Ver demo", safeUrl(p.demo_url)],
+            ["Front-end", safeUrl(p.front_url)],
+            ["Back-end", safeUrl(p.back_url)],
+            ["Demo", safeUrl(p.demo_url)],
           ].filter(([, href]) => href) as [string, string][];
+          const preview = projectPreviewUrl(p);
+
           return (
-            <li key={p.id} className="pixel-frame-sm space-y-2 px-3 py-3">
-              <div className="flex items-center justify-between gap-2">
-                <p className="pixel-font text-[10px] text-foreground font-bold">{p.title}</p>
-                <a
-                  href={githubProfile}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="pixel-font text-[8px] text-muted-foreground hover:text-primary transition-colors"
-                >
-                  GitHub ↗
-                </a>
-              </div>
-              <p className="text-sm leading-relaxed whitespace-pre-line">{p.description}</p>
-              {p.tags.length > 0 && (
-                <p className="pixel-font text-muted-foreground text-[8px] uppercase">
-                  {p.tags.join(" · ")}
-                </p>
-              )}
-              {links.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {links.map(([labelText, href]) => (
-                    <a
-                      key={labelText}
-                      href={href}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="pixel-font pixel-press bg-secondary text-secondary-foreground px-2 py-1 text-[8px] uppercase inline-flex items-center gap-1"
-                    >
-                      <span>{labelText}</span>
-                      <span>↗</span>
-                    </a>
-                  ))}
+            <article
+              key={p.id}
+              className="group overflow-hidden pixel-frame-sm bg-card transition-transform duration-200 hover:-translate-y-0.5"
+            >
+              <div className="relative aspect-[16/7] overflow-hidden border-b-2 border-border bg-muted/30">
+                {preview ? (
+                  <img
+                    src={preview}
+                    alt={`Prévia visual do projeto ${p.title}`}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                    style={{ imageRendering: p.title.toLowerCase().includes("rpg") ? "pixelated" : "auto" }}
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <span className="pixel-font text-[8px] text-muted-foreground">PREVIEW DO PROJETO</span>
+                  </div>
+                )}
+                <div className="absolute left-2 top-2 pixel-font bg-[#241a16]/90 px-2 py-1 text-[7px] text-amber-200">
+                  QUEST {String(index + 1).padStart(2, "0")}
                 </div>
-              )}
-            </li>
+              </div>
+
+              <div className="space-y-3 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="pixel-font text-[11px] font-bold text-foreground">{p.title}</p>
+                    <p className="mt-1 text-[9px] text-muted-foreground">
+                      {index === 0 ? "Sistema web de biblioteca" : index === 1 ? "Sistema de registro para guarda-vidas" : "Portfólio jogável em pixel art"}
+                    </p>
+                  </div>
+                  <span className="pixel-font text-[7px] text-primary">#{String(p.sort_order).padStart(2, "0")}</span>
+                </div>
+
+                <p className="text-sm leading-relaxed whitespace-pre-line">{p.description}</p>
+
+                {p.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {p.tags.map((tag) => (
+                      <span key={tag} className="pixel-font border border-border bg-secondary/10 px-2 py-1 text-[7px] uppercase text-secondary">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {links.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {links.map(([labelText, href]) => (
+                      <a
+                        key={labelText}
+                        href={href}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="pixel-font pixel-press bg-secondary px-2.5 py-1.5 text-[8px] uppercase text-secondary-foreground"
+                      >
+                        {labelText} ↗
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </article>
           );
         })}
-      </ul>
+      </div>
     </div>
   );
 }
