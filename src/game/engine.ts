@@ -20,7 +20,8 @@ import pokemartSprite from "@/assets/build-pokemart.png";
 import innSprite from "@/assets/build-inn.png";
 import workshopSprite from "@/assets/build-workshop.png";
 import cottageSprite from "@/assets/build-cottage.png";
-import trainerIdleAtlas from "@/assets/trainers-overworld-idle-atlas.png";
+import trainerOverworldAtlas from "@/assets/trainers-real-overworld-atlas.png";
+import pokemonOverworldAtlas from "@/assets/pokemon-real-overworld-map-atlas.png";
 import doorModernSprite from "@/assets/door-modern.png";
 import doorWoodSprite from "@/assets/door-wood.png";
 import desertSandTile from "@/assets/tiles/desert-sand.png";
@@ -101,10 +102,11 @@ const SPRITES: Record<string, string> = {
  * (down, left, right, up). Character 0 is the player.
  */
 /** Real overworld trainer atlas built from the supplied trainer assets.
- * 5 variants: Red (player) + Leaf, Brendan, May and Serena (NPCs).
- * Each variant has 4 native 32x48 idle directional cells: down, left, right, up.
+ * 6 variants: Red (player) + Leaf, Brendan, May, Serena and Lyra (NPCs).
+ * Each variant is a native 128x192 RPG-Maker-style sheet: 4 columns × 4 rows,
+ * with down/left/right/up rows and two walking poses around an idle pose.
  */
-const TRAINER_VARIANTS = 5;
+const TRAINER_VARIANTS = 6;
 const TRAINER_DIR_INDEX: Record<Dir, number> = { down: 0, left: 1, right: 2, up: 3 };
 const TRAINER_FRAMES_PER_DIRECTION = 4;
 const trainerFrame = (variant: number, dir: Dir, walkFrame = 0) =>
@@ -115,7 +117,7 @@ const trainerFrame = (variant: number, dir: Dir, walkFrame = 0) =>
 // Each supplied trainer sheet has four poses per direction.
 const trainerWalkFrame = (phase: number) =>
   Math.floor(Math.max(0, phase) * TRAINER_FRAMES_PER_DIRECTION) % TRAINER_FRAMES_PER_DIRECTION;
-const npcTrainerVariant = (id: number) => 1 + (Math.abs(id) % (TRAINER_VARIANTS - 1));
+const npcTrainerVariant = (id: number) => Math.abs(id) % TRAINER_VARIANTS;
 
 /** minimal structural types so we can mutate kaplay objects with strict TS */
 type LeafObj = { width: number; pos: { x: number; y: number } };
@@ -181,7 +183,10 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
   });
 
   for (const [name, src] of Object.entries(SPRITES)) k.loadSprite(name, src);
-  k.loadSprite("trainer-chars", trainerIdleAtlas, { sliceX: TRAINER_VARIANTS * 4, sliceY: 4 });
+  k.loadSprite("trainer-chars", trainerOverworldAtlas, { sliceX: TRAINER_VARIANTS * 4, sliceY: 4 });
+  // Real follower/overworld Pokémon sheets from the supplied Characters archive.
+  // Three confirmed map sprites are grouped as 4-direction 32px cells.
+  k.loadSprite("pokemon-overworld", pokemonOverworldAtlas, { sliceX: 3, sliceY: 4 });
   k.loadSprite("door-modern", doorModernSprite, { sliceX: 4, sliceY: 1 });
   k.loadSprite("door-wood", doorWoodSprite, { sliceX: 4, sliceY: 1 });
    k.loadSprite("terrain-sand", desertSandTile);
@@ -1041,7 +1046,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
   }[] = [];
 
   // Transition engine for authentic Pokemon-style door warps
-  const transitionManager = new TransitionManager(root, 960, 704);
+  const transitionManager = new TransitionManager(root, 960, 540);
   let currentTransitionType: TransitionType = "iris";
 
   k.scene("play", (arg: { id: SceneId; spawn?: { x: number; y: number }; initialFacing?: Dir }) => {
@@ -1233,6 +1238,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       targetY: number;
       baseScale: number;
       isLarge: boolean;
+      overworldIndex?: number;
       spr: {
         pos: { x: number; y: number };
         scale: { x: number; y: number };
@@ -1247,6 +1253,9 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
     for (const item of pokeInteractables) {
       const poke = item.poke || "pikachu";
       const pokeKey = `poke-${poke}`;
+      const overworldSpecies: Record<string, number> = { pikachu: 0, eevee: 1, psyduck: 2 };
+      const overworldIndex = overworldSpecies[poke];
+      const hasOverworld = overworldIndex !== undefined;
       const isLarge = poke === "arcanine" || poke === "flygon";
       const isMedium =
         poke === "bulbasaur" ||
@@ -1270,12 +1279,15 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       ]) as unknown as { pos: { x: number; y: number } };
 
       const spr = k.add([
-        k.sprite(pokeKey),
+        hasOverworld
+          ? k.sprite("pokemon-overworld", { frame: overworldIndex * 4 + 0 })
+          : k.sprite(pokeKey),
         k.anchor("bot"),
         k.pos(px, py),
-        k.scale(baseScale),
+        k.scale(hasOverworld ? Math.max(0.9, baseScale * 0.9) : baseScale),
         k.z(20),
       ]) as unknown as {
+        frame: number;
         pos: { x: number; y: number };
         scale: { x: number; y: number };
         angle: number;
@@ -1307,6 +1319,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         targetY: py,
         baseScale,
         isLarge,
+        overworldIndex,
         spr,
         shadow,
         emote,
@@ -1438,7 +1451,11 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           // Gentle breathing idle
           const t = k.time();
           setScaleY(p.spr, p.baseScale + Math.sin(t * 3.5 + p.curCol) * 0.02);
-          setScaleX(p.spr, (p.facing === "left" ? -1 : 1) * p.baseScale);
+          if (p.overworldIndex !== undefined) {
+            setScaleX(p.spr, p.facing === "left" ? -1 : 1);
+          } else {
+            setScaleX(p.spr, (p.facing === "left" ? -1 : 1) * p.baseScale);
+          }
           p.spr.angle = 0;
 
           if (p.idleTimer <= 0) {
@@ -1477,11 +1494,15 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           p.walkProgress += k.dt() * 1.5;
           const prog = Math.min(1, p.walkProgress);
 
+          if (p.overworldIndex !== undefined) {
+            const dirIndex = p.facing === "left" ? 1 : 2;
+            p.spr.frame = p.overworldIndex * 4 + dirIndex;
+          }
           const curPx = p.fromX + (p.targetX - p.fromX) * prog;
           const curPy = p.fromY + (p.targetY - p.fromY) * prog;
           // Characteristic Pokemon hop & waddle
           const hop = Math.abs(Math.sin(prog * Math.PI * 3.5)) * 3;
-          p.spr.angle = Math.sin(prog * Math.PI * 3.5) * 6;
+          p.spr.angle = p.overworldIndex !== undefined ? 0 : Math.sin(prog * Math.PI * 3.5) * 6;
 
           setScaleX(p.spr, (p.facing === "left" ? -1 : 1) * p.baseScale);
           setPosX(p.spr, curPx);
