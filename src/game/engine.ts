@@ -71,6 +71,26 @@ export interface GameHandle {
   setTransitionType: (type: TransitionType) => void;
 }
 
+const NPC_BATTLE_SPRITES: Record<string, string> = {
+  "city-guide": "https://play.pokemonshowdown.com/sprites/trainers/acetrainerf.png",
+  "city-traveler": "https://play.pokemonshowdown.com/sprites/trainers/brendan.png",
+  "oasis-lake": "https://play.pokemonshowdown.com/sprites/trainers/fisherman.png",
+  "sparring-ring": "https://play.pokemonshowdown.com/sprites/trainers/blackbelt.png",
+  "camp-camper": "https://play.pokemonshowdown.com/sprites/trainers/camper.png",
+  "dev-coder": "https://play.pokemonshowdown.com/sprites/trainers/scientist.png",
+  "dev-mechanic": "https://play.pokemonshowdown.com/sprites/trainers/lass.png",
+  "cactus-ranger": "https://play.pokemonshowdown.com/sprites/trainers/hiker.png",
+  "bazaar-merchant": "https://play.pokemonshowdown.com/sprites/trainers/gentleman.png",
+  "arena-trainer": "https://play.pokemonshowdown.com/sprites/trainers/veteran.png",
+  "about-intro": "https://play.pokemonshowdown.com/sprites/trainers/lucas.png",
+  "skills-intro": "https://play.pokemonshowdown.com/sprites/trainers/scientist.png",
+  "projects-intro": "https://play.pokemonshowdown.com/sprites/trainers/contestjudge.png",
+  "contact-intro": "https://play.pokemonshowdown.com/sprites/trainers/beauty.png",
+  "inn-clerk": "https://play.pokemonshowdown.com/sprites/trainers/beauty.png",
+  "pokecenter-nurse": "https://play.pokemonshowdown.com/sprites/trainers/nurse.png",
+  "workshop-coder": "https://play.pokemonshowdown.com/sprites/trainers/acetrainer.png",
+};
+
 const SPRITES: Record<string, string> = {
   home: homeSprite,
   lab: labSprite,
@@ -180,6 +200,9 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
   });
 
   for (const [name, src] of Object.entries(SPRITES)) k.loadSprite(name, src);
+  for (const [dialogueId, src] of Object.entries(NPC_BATTLE_SPRITES)) {
+    k.loadSprite(`npc-battle-${dialogueId}`, src);
+  }
   k.loadSprite("trainer-chars", trainerIdleAtlas, { sliceX: TRAINER_VARIANTS * 4, sliceY: 4 });
   k.loadSprite("door-modern", doorModernSprite, { sliceX: 4, sliceY: 1 });
   k.loadSprite("door-wood", doorWoodSprite, { sliceX: 4, sliceY: 1 });
@@ -656,7 +679,8 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
     targetX: number;
     targetY: number;
     canWander: boolean;
-    spr: { frame: number; pos: { x: number; y: number } };
+    spr: { frame: number; pos: { x: number; y: number }; opacity: number };
+    battleSpr: { pos: { x: number; y: number }; opacity: number; scale: { x: number; y: number } };
     shadow: { pos: { x: number; y: number } };
     emote: { opacity: number; pos: { x: number; y: number } };
   }
@@ -1306,6 +1330,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         baseScale,
         isLarge,
         spr,
+        battleSpr,
         shadow,
         emote,
       });
@@ -1331,12 +1356,44 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
 
       // Sprite component (clean standing idle pose with integer pixel scale 1.0)
       const spr = k.add([
-        k.sprite("trainer-chars", { frame: trainerFrame(trainerVariant, face) }),
+        k.sprite("trainer-chars", { frame: trainerFrame(trainerVariant, face, 0) }),
         k.pos(px, py),
         k.anchor("bot"),
         k.scale(1.0),
+        k.opacity(0),
         k.z(20),
-      ]) as unknown as { frame: number; pos: { x: number; y: number } };
+      ]) as unknown as { frame: number; pos: { x: number; y: number }; opacity: number };
+
+      // Standing/talking portrait uses the exact same trainer sprite family as
+      // the dialogue/battle portrait, scaled down for the overworld.
+      const battleKey = NPC_BATTLE_SPRITES[item.dialogue]
+        ? `npc-battle-${item.dialogue}`
+        : null;
+      const battleSpr = battleKey
+        ? (k.add([
+            k.sprite(battleKey),
+            k.pos(px, py + 1),
+            k.anchor("bot"),
+            k.scale(0.46),
+            k.opacity(1),
+            k.z(21),
+          ]) as unknown as {
+            pos: { x: number; y: number };
+            opacity: number;
+            scale: { x: number; y: number };
+          })
+        : (k.add([
+            k.sprite("trainer-chars", { frame: trainerFrame(trainerVariant, face, 0) }),
+            k.pos(px, py),
+            k.anchor("bot"),
+            k.scale(1),
+            k.opacity(1),
+            k.z(21),
+          ]) as unknown as {
+            pos: { x: number; y: number };
+            opacity: number;
+            scale: { x: number; y: number };
+          });
 
       // Reaction emote bubble
       const emote = k.add([
@@ -1497,12 +1554,18 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       for (const npc of activeNpcs) {
         if (state.paused || npc.state === "talking") {
           npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing, 0);
+          npc.spr.opacity = 0;
+          npc.battleSpr.opacity = 1;
           continue;
         }
 
         if (npc.state === "idle") {
           // Always maintain clean standing idle pose (frame 0) with zero twitching
           npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing, 0);
+          npc.spr.opacity = 0;
+          npc.battleSpr.opacity = 1;
+          setPosX(npc.battleSpr, npc.spr.pos.x);
+          setPosY(npc.battleSpr, npc.spr.pos.y + 1);
           npc.idleTimer -= k.dt();
 
           if (npc.idleTimer <= 0) {
@@ -1563,6 +1626,8 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           // 0.75..1.00 -> Frame 0 (neutral standing)
           const stepPhase = Math.floor(prog * 4);
           npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing, trainerWalkFrame(prog));
+          npc.spr.opacity = 1;
+          npc.battleSpr.opacity = 0;
 
           const curPx = npc.fromX + (npc.targetX - npc.fromX) * prog;
           const curPy = npc.fromY + (npc.targetY - npc.fromY) * prog;
@@ -1582,6 +1647,10 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
             npc.item.y = npc.curRow;
             npc.state = "idle";
             npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing, 0);
+            npc.spr.opacity = 0;
+            npc.battleSpr.opacity = 1;
+            setPosX(npc.battleSpr, curPx);
+            setPosY(npc.battleSpr, curPy + 1);
             setPosY(npc.spr, curPy);
             npc.idleTimer = 1.8 + Math.random() * 2.5;
           }
