@@ -1597,8 +1597,8 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         const movedDist = Math.hypot(player.pos.x - prevX, player.pos.y - prevY);
         if (movedDist > 0.001) {
           player.step += (movedDist / TILE) * 7.5;
-          const cycle = [0, 1, 2, 3];
-          player.frame = trainerFrame(0, player.facing, 0);
+          // One complete four-frame cycle per tile keeps the animation readable.
+          player.frame = trainerFrame(0, player.facing, trainerWalkFrame(player.step / 2));
         } else {
           player.step = 0;
           player.frame = trainerFrame(0, player.facing, 0);
