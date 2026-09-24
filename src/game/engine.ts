@@ -1458,16 +1458,24 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           const t = k.time();
           setScaleY(p.spr, p.baseScale + Math.sin(t * 3.5 + p.curCol) * 0.02);
           if (p.overworldIndex !== undefined) {
+            const dirIndex = ({ down: 0, left: 1, right: 2, up: 3 } as Record<Dir, number>)[p.facing];
+            p.spr.frame = p.overworldIndex * 4 + dirIndex;
             setScaleX(p.spr, p.facing === "left" ? -1 : 1);
           } else {
-            setScaleX(p.spr, (p.facing === "left" ? -1 : 1) * p.baseScale);
+            setScaleX(
+            p.spr,
+            p.overworldIndex !== undefined
+              ? p.facing === "left" ? -1 : 1
+              : (p.facing === "left" ? -1 : 1) * p.baseScale,
+          );
           }
           p.spr.angle = 0;
 
           if (p.idleTimer <= 0) {
             if (Math.random() < 0.45) {
               // Turn direction
-              p.facing = p.facing === "left" ? "right" : "left";
+              const dirs: Dir[] = ["down", "left", "right", "up"];
+              p.facing = dirs[Math.floor(Math.random() * dirs.length)]!;
               setScaleX(p.spr, (p.facing === "left" ? -1 : 1) * p.baseScale);
               p.idleTimer = 1.6 + Math.random() * 2.2;
             } else {
@@ -1485,7 +1493,10 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
 
               if (distFromHome <= 1.8 && !isSolid(rows, nextCol, nextRow)) {
                 p.state = "walking";
-                p.facing = dx < 0 ? "left" : dx > 0 ? "right" : p.facing;
+                p.facing =
+                  dx < 0 ? "left" :
+                  dx > 0 ? "right" :
+                  dy < 0 ? "up" : "down";
                 p.walkProgress = 0;
                 p.fromX = p.spr.pos.x;
                 p.fromY = p.curRow * TILE + TILE - 2;
@@ -1501,7 +1512,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           const prog = Math.min(1, p.walkProgress);
 
           if (p.overworldIndex !== undefined) {
-            const dirIndex = p.facing === "left" ? 1 : 2;
+            const dirIndex = ({ down: 0, left: 1, right: 2, up: 3 } as Record<Dir, number>)[p.facing];
             p.spr.frame = p.overworldIndex * 4 + dirIndex;
           }
           const curPx = p.fromX + (p.targetX - p.fromX) * prog;
