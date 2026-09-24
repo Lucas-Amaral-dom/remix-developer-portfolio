@@ -36,9 +36,6 @@ const SPEAKER_VARIANTS: Record<string, number> = {
 
 function TrainerAvatar({ speaker }: { speaker: string }) {
   const variant = SPEAKER_VARIANTS[speaker] ?? 1;
-  // trainer-overworld-idle-atlas: 5 variants × 16 frames, 32×48 per cell.
-  // Show the first (down/idle) frame at 2× scale so the dialogue portrait
-  // and the map NPC share the exact same pixel source.
   // The same 6-variant atlas used by the map: each trainer occupies
   // one 128×192 sheet. Display that sheet at 50% for a clean 64×96 portrait.
   const x = -variant * 64;
@@ -48,7 +45,7 @@ function TrainerAvatar({ speaker }: { speaker: string }) {
       aria-label={speaker}
       className="h-24 w-16 shrink-0 overflow-hidden rounded-md border-2 border-amber-800/60 bg-gradient-to-b from-amber-950/40 via-amber-900/20 to-black/50 shadow-md"
       style={{
-        backgroundImage: 'url("/assets/trainers-overworld-idle-atlas.png")',
+        backgroundImage: 'url("/assets/trainers-real-overworld-atlas.png")',
         backgroundRepeat: "no-repeat",
         backgroundSize: "384px 96px",
         backgroundPosition: `${x}px ${y}px`,
