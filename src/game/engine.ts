@@ -996,13 +996,27 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         break;
       }
       case "gazebo": {
-        // Small shaded pavilion for the lakeside plaza.
-        box(4, 20, 24, 9, [126, 88, 58], 7);
-        box(2, 6, 28, 16, [226, 176, 104], 8);
-        box(0, 2, 32, 8, [184, 72, 48], 9);
-        box(5, 4, 22, 4, [244, 208, 132], 10);
-        k.add([k.rect(3, 18), k.pos(px + 5, py + 12), k.color(110, 76, 52), k.z(9)]);
-        k.add([k.rect(3, 18), k.pos(px + 24, py + 12), k.color(110, 76, 52), k.z(9)]);
+        // Lakeside plaza pavilion: layered sandstone base, four wooden posts,
+        // shaded roof and a readable central opening. This is a real landmark,
+        // not a floating decorative rectangle.
+        box(2, 23, 28, 7, [112, 78, 54], 6);
+        box(4, 20, 24, 7, [178, 132, 84], 7);
+        box(1, 7, 30, 15, [224, 182, 116], 8);
+        box(0, 3, 32, 8, [152, 70, 46], 9);
+        box(3, 1, 26, 5, [196, 98, 56], 10);
+        // roof highlights / eaves
+        box(5, 5, 22, 2, [238, 170, 94], 11);
+        // structural posts
+        for (const x of [5, 24]) {
+          box(x, 10, 4, 18, [108, 74, 50], 9);
+          box(x + 1, 10, 2, 18, [168, 118, 72], 10);
+        }
+        // central shade and entrance
+        box(10, 12, 12, 9, [104, 76, 58], 8);
+        box(12, 13, 8, 8, [78, 120, 124], 9);
+        // two benches facing the water
+        box(8, 24, 6, 3, [126, 82, 48], 10);
+        box(18, 24, 6, 3, [126, 82, 48], 10);
         break;
       }
       case "table": {
