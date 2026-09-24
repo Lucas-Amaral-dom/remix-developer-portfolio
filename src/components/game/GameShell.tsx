@@ -337,10 +337,19 @@ function World({
       },
     });
     gameRef.current = game;
-    return () => {
+    // React StrictMode can mount the effect twice during development. Delay the
+    // destructive cleanup by one tick so the second pass reuses the same game
+    // instead of calling kaplay() a second time.
+    let disposed = false;
+    const cleanupTimer = setTimeout(() => {
+      if (disposed) return;
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
       game.destroy();
-      gameRef.current = null;
+      if (gameRef.current === game) gameRef.current = null;
+    }, 0);
+    return () => {
+      disposed = true;
+      clearTimeout(cleanupTimer);
     };
   }, [handleDialogue, handlePrompt]);
 
