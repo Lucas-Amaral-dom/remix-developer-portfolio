@@ -26,15 +26,6 @@ import doorWoodSprite from "@/assets/door-wood.png";
 import desertSandTile from "@/assets/tiles/desert-sand.png";
 import desertBrickTile from "@/assets/tiles/desert-brick.png";
 
-// KAPLAY components can be torn down while an animation callback is still queued.
-// Keep visual updates defensive so scene transitions never write into a missing
-// position/scale component.
-const setPosX = (obj: any, value: number) => { if (obj?.pos) obj.pos.x = value; };
-const setPosY = (obj: any, value: number) => { if (obj?.pos) obj.pos.y = value; };
-const setScaleX = (obj: any, value: number) => { if (obj?.scale) obj.scale.x = value; };
-const setScaleY = (obj: any, value: number) => { if (obj?.scale) obj.scale.y = value; };
-
-
 import pikachuSprite from "@/assets/pokemon/pikachu.png";
 import trapinchSprite from "@/assets/pokemon/trapinch.png";
 import chanseySprite from "@/assets/pokemon/chansey.png";
@@ -49,6 +40,14 @@ import bulbasaurSprite from "@/assets/pokemon/bulbasaur.png";
 
 import { sound } from "@/lib/sound";
 import { TransitionManager, type TransitionType } from "./transition";
+
+// KAPLAY components can be torn down while an animation callback is still queued.
+// Keep visual updates defensive so scene transitions never write into a missing
+// position/scale component.
+const setPosX = (obj: any, value: number) => { if (obj?.pos) obj.pos.x = value; };
+const setPosY = (obj: any, value: number) => { if (obj?.pos) obj.pos.y = value; };
+const setScaleX = (obj: any, value: number) => { if (obj?.scale) obj.scale.x = value; };
+const setScaleY = (obj: any, value: number) => { if (obj?.scale) obj.scale.y = value; };
 
 export type Dir = "up" | "down" | "left" | "right";
 
