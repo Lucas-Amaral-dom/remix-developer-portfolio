@@ -34,7 +34,12 @@ export type FurnitureKind =
   | "well"
   | "stall"
   | "rock"
-  | "banner";
+  | "banner"
+  | "gazebo"
+  | "table"
+  | "chair"
+  | "planter"
+  | "crate";
 
 export interface Interactable {
   /** tile coords of the object itself */
@@ -313,6 +318,12 @@ function buildCity(): SceneDef {
   set(g, 3, 20, "s"); // tent ground
   set(g, 2, 22, "s"); // tent ground
 
+  // Oasis lakeside promenade and resting plaza.
+  // The dock now feeds directly into a small paved square, giving the lake
+  // a clear social landmark instead of leaving the shoreline visually empty.
+  fillRect(g, 10, 7, 2, 3, "p");
+  fillRect(g, 10, 9, 5, 4, "p");
+
   // Main Cobblestone / Sandstone Streets
   // North-south central avenue
   fillRect(g, 18, 6, 2, 18, "p");
@@ -406,6 +417,14 @@ function buildCity(): SceneDef {
       { x: 5, y: 5, kind: "duck", label: "Mascote Aquático", dialogue: "oasis-duck" },
       { x: 5, y: 7, kind: "sign", label: "Guarda-sol & Descanso", dialogue: "oasis-umbrella" },
       { x: 3, y: 4, kind: "counter", label: "Barraca de Água de Coco", dialogue: "oasis-juice" },
+
+      // Lakeside Oasis Plaza
+      { x: 12, y: 10, kind: "fountain", label: "Fonte da Praça do Oásis", dialogue: "oasis-plaza" },
+      { x: 10, y: 10, kind: "gazebo", label: "Pavilhão da Praça do Oásis", dialogue: "oasis-plaza" },
+      { x: 11, y: 12, kind: "bench", label: "Banco da Fonte", dialogue: "city-bench" },
+      { x: 14, y: 12, kind: "bench", label: "Banco da Fonte", dialogue: "city-bench" },
+      { x: 13, y: 9, kind: "planter", label: "Jardim do Oásis", dialogue: "oasis-plaza" },
+      { x: 14, y: 10, kind: "banner", label: "Bandeira da Praça", dialogue: "city-banner" },
 
       // Training Sparring Corral
       {
@@ -645,6 +664,8 @@ export const SCENES: Record<SceneId, SceneDef> = {
       { x: 4, y: 6, kind: "desk", label: "Escrivaninha de Estudos", dialogue: "about-story" },
       { x: 9, y: 6, kind: "console", label: "Console de Jogos", dialogue: "about-seeking" },
       { x: 1, y: 6, kind: "plant", label: "Planta Decorativa", dialogue: "flavor-plant" },
+      { x: 10, y: 2, kind: "shelf", label: "Estante de Estudos", dialogue: "about-story" },
+      { x: 2, y: 5, kind: "rug", label: "Tapete da Casa", dialogue: "city-bench" },
     ],
     "Fale com o Lucas e vasculhe os móveis para conhecer sua história.",
   ),
@@ -680,6 +701,8 @@ export const SCENES: Record<SceneId, SceneDef> = {
         dialogue: "skills-intro",
       },
       { x: 1, y: 6, kind: "shelf", label: "Mural de Tecnologias", dialogue: "skills-list" },
+      { x: 10, y: 6, kind: "shelf", label: "Biblioteca Técnica", dialogue: "skills-list" },
+      { x: 2, y: 5, kind: "computer", label: "Terminal de Testes", dialogue: "skill-quality" },
     ],
     "Cada bancada de pesquisa detalha uma área técnica do desenvolvedor.",
   ),
@@ -708,6 +731,9 @@ export const SCENES: Record<SceneId, SceneDef> = {
         dialogue: "projects-intro",
       },
       { x: 1, y: 6, kind: "shelf", label: "Hall dos Campeões", dialogue: "projects-all" },
+      { x: 2, y: 6, kind: "bench", label: "Banco da Arena", dialogue: "city-bench" },
+      { x: 10, y: 6, kind: "dummy", label: "Alvo de Treino", dialogue: "sparring-dummy" },
+      { x: 2, y: 2, kind: "banner", label: "Bandeira da Arena", dialogue: "city-banner" },
     ],
     "Cada troféu guarda os repositórios e tecnologias dos projetos.",
   ),
@@ -728,6 +754,8 @@ export const SCENES: Record<SceneId, SceneDef> = {
       { x: 2, y: 6, kind: "shelf", label: "Redes & Links", dialogue: "contact-links" },
       { x: 10, y: 6, kind: "plant", label: "Cacto Raro", dialogue: "flavor-plant" },
       { x: 10, y: 3, kind: "console", label: "Terminal de Localização", dialogue: "contact-city" },
+      { x: 1, y: 3, kind: "shelf", label: "Produtos do Bazar", dialogue: "contact-links" },
+      { x: 9, y: 6, kind: "crate", label: "Caixas do Bazar", dialogue: "city-stall" },
     ],
     "Fale com a atendente no balcão para enviar uma mensagem diretamente.",
   ),
@@ -757,6 +785,8 @@ export const SCENES: Record<SceneId, SceneDef> = {
       },
       { x: 2, y: 6, kind: "shelf", label: "Livro de Hóspedes", dialogue: "inn-book" },
       { x: 10, y: 6, kind: "console", label: "Lareira Acolhedora", dialogue: "inn-fire" },
+      { x: 6, y: 6, kind: "table", label: "Mesa da Pousada", dialogue: "inn-book" },
+      { x: 4, y: 6, kind: "chair", label: "Cadeira da Pousada", dialogue: "inn-book" },
     ],
     "Descanse nas camas para revigorar seus Pokémon e seu espírito de dev!",
   ),
@@ -798,6 +828,8 @@ export const SCENES: Record<SceneId, SceneDef> = {
       },
       { x: 2, y: 6, kind: "desk", label: "Bancada de Testes & Lint", dialogue: "workshop-lint" },
       { x: 10, y: 6, kind: "plant", label: "Planta Bonsai", dialogue: "flavor-plant" },
+      { x: 2, y: 5, kind: "computer", label: "Terminal de Integração", dialogue: "workshop-deploy" },
+      { x: 9, y: 5, kind: "computer", label: "Terminal de Testes", dialogue: "workshop-lint" },
     ],
     "Conheça as ferramentas, arquitetura e bastidores deste projeto.",
   ),
@@ -827,6 +859,8 @@ export const SCENES: Record<SceneId, SceneDef> = {
       { x: 10, y: 3, kind: "shelf", label: "Mapa da Região", dialogue: "pokecenter-map" },
       { x: 2, y: 6, kind: "bench", label: "Sofá da Recepção", dialogue: "city-bench" },
       { x: 10, y: 6, kind: "plant", label: "Vaso de Flores", dialogue: "flavor-plant" },
+      { x: 1, y: 5, kind: "shelf", label: "Suprimentos Médicos", dialogue: "pokecenter-map" },
+      { x: 9, y: 5, kind: "bench", label: "Banco de Espera", dialogue: "city-bench" },
     ],
     "Recupere suas energias e converse com a Enfermeira Joy!",
   ),
