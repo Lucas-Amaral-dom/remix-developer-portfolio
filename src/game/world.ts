@@ -580,14 +580,14 @@ function buildInterior(
   interactables: Interactable[],
   hint: string,
 ): SceneDef {
-  const w = 13;
-  const h = 9;
+  // Larger rooms give the interiors enough space for functional furniture clusters,
+  // circulation and real door approaches instead of the old 13×9 empty box.
+  const w = 15;
+  const h = 11;
   const g = makeGrid(w, h, ".");
-
-  // Every building gets a deliberate floor plan instead of a generic empty room.
-  // The center remains open for movement; decoration stays against walls.
   border(g, "W");
   fillRect(g, 1, 1, w - 2, 1, "V");
+  fillRect(g, 1, 2, w - 2, h - 3, ".");
 
   const floorByScene: Record<SceneId, string> = {
     city: ".",
@@ -599,48 +599,60 @@ function buildInterior(
     workshop: "q",
     pokecenter: "q",
   };
-
   const floor = floorByScene[id];
   fillRect(g, 1, 2, w - 2, h - 3, floor);
 
-  // Subtle checker/aisle pattern keeps rooms readable without becoming noisy.
-  for (let y = 2; y < h - 1; y++) {
-    for (let x = 1; x < w - 1; x++) {
-      if ((x + y) % 2 === 0 && floor !== "i") set(g, x, y, "q");
-    }
+  // Real room-planning rhythm: perimeter trim, a central circulation aisle,
+  // and scene-specific carpet/floor zones rather than a checkerboard.
+  for (let x = 1; x < w - 1; x++) {
+    set(g, x, 2, "V");
+    set(g, x, h - 2, "r");
+  }
+  for (let y = 3; y < h - 2; y++) {
+    set(g, 2, y, "V");
+    set(g, w - 3, y, "V");
+  }
+  fillRect(g, 6, 4, 3, 4, floor === "q" ? "r" : "q");
+
+  if (id === "home") {
+    fillRect(g, 3, 3, 3, 2, "i");
+    fillRect(g, 9, 3, 3, 2, "i");
+    fillRect(g, 4, 7, 7, 1, "r");
+  } else if (id === "lab") {
+    fillRect(g, 3, 3, 9, 1, "V");
+    fillRect(g, 3, 7, 9, 1, "r");
+  } else if (id === "pokecenter") {
+    fillRect(g, 4, 3, 7, 1, "V");
+    fillRect(g, 4, 7, 7, 1, "r");
+  } else if (id === "arena") {
+    fillRect(g, 4, 4, 7, 3, "r");
+    set(g, 7, 5, "q");
+  } else if (id === "shop") {
+    fillRect(g, 3, 3, 9, 1, "i");
+    fillRect(g, 3, 7, 9, 1, "r");
+  } else if (id === "inn") {
+    fillRect(g, 3, 4, 3, 3, "i");
+    fillRect(g, 9, 4, 3, 3, "i");
+    fillRect(g, 6, 8, 3, 1, "r");
+  } else if (id === "workshop") {
+    fillRect(g, 3, 3, 9, 1, "V");
+    fillRect(g, 3, 7, 3, 1, "r");
+    fillRect(g, 9, 7, 3, 1, "r");
   }
 
-  // Scene-specific visual anchors.
-  if (id === "home" || id === "inn") {
-    fillRect(g, 4, 5, 5, 2, "r");
-  }
-  if (id === "lab" || id === "pokecenter") {
-    fillRect(g, 5, 2, 3, 1, "V");
-    fillRect(g, 5, 6, 3, 1, "r");
-  }
-  if (id === "arena") {
-    fillRect(g, 4, 4, 5, 2, "r");
-  }
-  if (id === "workshop") {
-    fillRect(g, 4, 5, 5, 1, "r");
-  }
-  if (id === "shop") {
-    fillRect(g, 4, 5, 5, 1, "r");
-  }
-
-  // Door is centered and always has a clear 3-tile approach.
-  set(g, 6, h - 1, "E");
+  // Door has a wide approach and is animated by the engine's 4-frame door state.
+  set(g, 7, h - 1, "E");
 
   return {
     id,
     title,
     grid: toRows(g),
-    spawn: { x: 6, y: 7 },
+    spawn: { x: 7, y: 8 },
     indoor: true,
     hint,
     buildings: [],
     interactables,
-    exits: [{ x: 6, y: h - 1, to: "city", spawn: { x: 6, y: 7 } }],
+    exits: [{ x: 7, y: h - 1, to: "city", spawn: { x: 6, y: 7 } }],
   };
 }
 
