@@ -71,25 +71,6 @@ export interface GameHandle {
   setTransitionType: (type: TransitionType) => void;
 }
 
-const NPC_BATTLE_SPRITES: Record<string, string> = {
-  "city-guide": "https://play.pokemonshowdown.com/sprites/trainers/acetrainerf.png",
-  "city-traveler": "https://play.pokemonshowdown.com/sprites/trainers/brendan.png",
-  "oasis-lake": "https://play.pokemonshowdown.com/sprites/trainers/fisherman.png",
-  "sparring-ring": "https://play.pokemonshowdown.com/sprites/trainers/blackbelt.png",
-  "camp-camper": "https://play.pokemonshowdown.com/sprites/trainers/camper.png",
-  "dev-coder": "https://play.pokemonshowdown.com/sprites/trainers/scientist.png",
-  "dev-mechanic": "https://play.pokemonshowdown.com/sprites/trainers/lass.png",
-  "cactus-ranger": "https://play.pokemonshowdown.com/sprites/trainers/hiker.png",
-  "bazaar-merchant": "https://play.pokemonshowdown.com/sprites/trainers/gentleman.png",
-  "arena-trainer": "https://play.pokemonshowdown.com/sprites/trainers/veteran.png",
-  "about-intro": "https://play.pokemonshowdown.com/sprites/trainers/lucas.png",
-  "skills-intro": "https://play.pokemonshowdown.com/sprites/trainers/scientist.png",
-  "projects-intro": "https://play.pokemonshowdown.com/sprites/trainers/contestjudge.png",
-  "contact-intro": "https://play.pokemonshowdown.com/sprites/trainers/beauty.png",
-  "inn-clerk": "https://play.pokemonshowdown.com/sprites/trainers/beauty.png",
-  "pokecenter-nurse": "https://play.pokemonshowdown.com/sprites/trainers/nurse.png",
-  "workshop-coder": "https://play.pokemonshowdown.com/sprites/trainers/acetrainer.png",
-};
 
 const SPRITES: Record<string, string> = {
   home: homeSprite,
@@ -200,9 +181,6 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
   });
 
   for (const [name, src] of Object.entries(SPRITES)) k.loadSprite(name, src);
-  for (const [dialogueId, src] of Object.entries(NPC_BATTLE_SPRITES)) {
-    k.loadSprite(`npc-battle-${dialogueId}`, src);
-  }
   k.loadSprite("trainer-chars", trainerIdleAtlas, { sliceX: TRAINER_VARIANTS * 4, sliceY: 4 });
   k.loadSprite("door-modern", doorModernSprite, { sliceX: 4, sliceY: 1 });
   k.loadSprite("door-wood", doorWoodSprite, { sliceX: 4, sliceY: 1 });
@@ -1330,7 +1308,6 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         baseScale,
         isLarge,
         spr,
-        battleSpr,
         shadow,
         emote,
       });
@@ -1364,53 +1341,21 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         k.z(20),
       ]) as unknown as { frame: number; pos: { x: number; y: number }; opacity: number };
 
-      // Standing/talking portrait uses the exact same trainer sprite family as
-      // the dialogue/battle portrait, scaled down for the overworld.
-      const battleKey = NPC_BATTLE_SPRITES[item.dialogue]
-        ? `npc-battle-${item.dialogue}`
-        : null;
-      const battleSpr = battleKey
-        ? (k.add([
-            k.sprite(battleKey),
-            k.pos(px, py + 1),
-            k.anchor("bot"),
-            k.scale(0.46),
-            k.opacity(1),
-            k.z(21),
-          ]) as unknown as {
-            pos: { x: number; y: number };
-            opacity: number;
-            scale: { x: number; y: number };
-          })
-        : (k.add([
-            k.sprite("trainer-chars", { frame: trainerFrame(trainerVariant, face, 0) }),
-            k.pos(px, py),
-            k.anchor("bot"),
-            k.scale(1),
-            k.opacity(1),
-            k.z(21),
-          ]) as unknown as {
-            pos: { x: number; y: number };
-            opacity: number;
-            scale: { x: number; y: number };
-          });
-
-      // Reaction emote bubble
-      const emote = k.add([
-        k.text("💬", { size: 9 }),
-        k.pos(px, py - 56),
-        k.anchor("center"),
-        k.opacity(0),
-        k.z(25),
-      ]) as unknown as { opacity: number; pos: { x: number; y: number } };
-
-      // Wandering permissions
-      const isCounterNpc = scene.indoor && item.y <= 3;
-      const isStationary =
-        item.dialogue === "city-guide" ||
-        item.dialogue === "bazaar-merchant" ||
-        item.dialogue === "oasis-lake";
-      const canWander = !isCounterNpc && !isStationary;
+      // The portrait is the same local trainer atlas used by the overworld.
+      // Walking uses the 4-frame row; idle/talk uses the first frame of that same variant.
+      const battleSpr = k.add([
+        k.sprite("trainer-chars", { frame: trainerFrame(trainerVariant, face, 0) }),
+        k.pos(px, py),
+        k.anchor("bot"),
+        k.scale(0.92),
+        k.opacity(1),
+        k.z(21),
+      ]) as unknown as {
+        pos: { x: number; y: number };
+        opacity: number;
+        scale: { x: number; y: number };
+        z: number;
+      };
 
       activeNpcs.push({
         item,
