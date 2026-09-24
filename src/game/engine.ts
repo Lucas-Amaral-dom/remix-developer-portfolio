@@ -105,8 +105,15 @@ const SPRITES: Record<string, string> = {
  */
 const TRAINER_VARIANTS = 5;
 const TRAINER_DIR_INDEX: Record<Dir, number> = { down: 0, left: 1, right: 2, up: 3 };
-const trainerFrame = (variant: number, dir: Dir) =>
-  (Math.abs(variant) % TRAINER_VARIANTS) * 4 + TRAINER_DIR_INDEX[dir];
+const TRAINER_FRAMES_PER_DIRECTION = 4;
+const trainerFrame = (variant: number, dir: Dir, walkFrame = 0) =>
+  ((Math.abs(variant) % TRAINER_VARIANTS) * 4 + TRAINER_DIR_INDEX[dir]) *
+    TRAINER_FRAMES_PER_DIRECTION +
+  (Math.abs(walkFrame) % TRAINER_FRAMES_PER_DIRECTION);
+
+// Each supplied trainer sheet has four poses per direction.
+const trainerWalkFrame = (phase: number) =>
+  Math.floor(Math.max(0, phase) * TRAINER_FRAMES_PER_DIRECTION) % TRAINER_FRAMES_PER_DIRECTION;
 const npcTrainerVariant = (id: number) => 1 + (Math.abs(id) % (TRAINER_VARIANTS - 1));
 
 /** minimal structural types so we can mutate kaplay objects with strict TS */
@@ -173,7 +180,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
   });
 
   for (const [name, src] of Object.entries(SPRITES)) k.loadSprite(name, src);
-  k.loadSprite("trainer-chars", trainerIdleAtlas, { sliceX: TRAINER_VARIANTS * 4, sliceY: 1 });
+  k.loadSprite("trainer-chars", trainerIdleAtlas, { sliceX: TRAINER_VARIANTS * 4, sliceY: 4 });
   k.loadSprite("door-modern", doorModernSprite, { sliceX: 4, sliceY: 1 });
   k.loadSprite("door-wood", doorWoodSprite, { sliceX: 4, sliceY: 1 });
    k.loadSprite("terrain-sand", desertSandTile);
@@ -1437,13 +1444,13 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       // Update active NPCs with authentic Pokemon movement AI
       for (const npc of activeNpcs) {
         if (state.paused || npc.state === "talking") {
-          npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing);
+          npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing, 0);
           continue;
         }
 
         if (npc.state === "idle") {
           // Always maintain clean standing idle pose (frame 0) with zero twitching
-          npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing);
+          npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing, 0);
           npc.idleTimer -= k.dt();
 
           if (npc.idleTimer <= 0) {
@@ -1451,7 +1458,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
             if (!npc.canWander || Math.random() < 0.4) {
               // Just look in a new direction
               npc.facing = dirs[Math.floor(Math.random() * dirs.length)]!;
-              npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing);
+              npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing, 0);
               npc.idleTimer = 1.8 + Math.random() * 2.5;
             } else {
               // Choose a step to walk
@@ -1503,8 +1510,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           // 0.50..0.75 -> Frame 3 (step right foot)
           // 0.75..1.00 -> Frame 0 (neutral standing)
           const stepPhase = Math.floor(prog * 4);
-          const walkCycle = [1, 0, 3, 0];
-          npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing);
+          npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing, trainerWalkFrame(prog));
 
           const curPx = npc.fromX + (npc.targetX - npc.fromX) * prog;
           const curPy = npc.fromY + (npc.targetY - npc.fromY) * prog;
@@ -1523,7 +1529,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
             npc.item.x = npc.curCol;
             npc.item.y = npc.curRow;
             npc.state = "idle";
-            npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing);
+            npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing, 0);
             setPosY(npc.spr, curPy);
             npc.idleTimer = 1.8 + Math.random() * 2.5;
           }
@@ -1592,14 +1598,14 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         if (movedDist > 0.001) {
           player.step += (movedDist / TILE) * 7.5;
           const cycle = [0, 1, 2, 3];
-          player.frame = trainerFrame(0, player.facing);
+          player.frame = trainerFrame(0, player.facing, 0);
         } else {
           player.step = 0;
-          player.frame = trainerFrame(0, player.facing);
+          player.frame = trainerFrame(0, player.facing, 0);
         }
       } else {
         player.step = 0;
-        player.frame = trainerFrame(0, player.facing);
+        player.frame = trainerFrame(0, player.facing, 0);
       }
 
       // Check nearest interaction or door
