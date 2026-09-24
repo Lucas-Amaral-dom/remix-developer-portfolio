@@ -959,6 +959,40 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         box(11, 7, 14, 4, [238, 190, 92], 9);
         break;
       }
+      case "gazebo": {
+        // Small shaded pavilion for the lakeside plaza.
+        box(4, 20, 24, 9, [126, 88, 58], 7);
+        box(2, 6, 28, 16, [226, 176, 104], 8);
+        box(0, 2, 32, 8, [184, 72, 48], 9);
+        box(5, 4, 22, 4, [244, 208, 132], 10);
+        k.add([k.rect(3, 18), k.pos(px + 5, py + 12), k.color(110, 76, 52), k.z(9)]);
+        k.add([k.rect(3, 18), k.pos(px + 24, py + 12), k.color(110, 76, 52), k.z(9)]);
+        break;
+      }
+      case "table": {
+        box(4, 9, 24, 12, [154, 108, 70], 7);
+        box(8, 20, 5, 9, [112, 76, 48], 6);
+        box(19, 20, 5, 9, [112, 76, 48], 6);
+        break;
+      }
+      case "chair": {
+        box(8, 9, 16, 7, [170, 120, 76], 7);
+        box(10, 15, 12, 11, [126, 86, 54], 6);
+        break;
+      }
+      case "planter": {
+        box(5, 17, 22, 10, [156, 102, 62], 7);
+        k.add([k.circle(6), k.pos(px + 9, py + 14), k.color(74, 154, 86), k.z(8)]);
+        k.add([k.circle(7), k.pos(px + 17, py + 12), k.color(64, 142, 80), k.z(8)]);
+        k.add([k.circle(5), k.pos(px + 24, py + 15), k.color(92, 174, 92), k.z(8)]);
+        break;
+      }
+      case "crate": {
+        box(4, 6, 24, 24, [168, 112, 66], 7);
+        k.add([k.rect(20, 3), k.pos(px + 6, py + 10), k.color(110, 72, 44), k.z(8)]);
+        k.add([k.rect(20, 3), k.pos(px + 6, py + 22), k.color(110, 72, 44), k.z(8)]);
+        break;
+      }
       case "sign":
         box(13, 14, 6, 16, [140, 100, 66], 9);
         box(2, 2, 28, 16, [196, 150, 100], 10);
@@ -1031,6 +1065,35 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
     }[] = [];
     currentDoors = doors;
 
+    if (scene.indoor) {
+      const dx = 6 * TILE;
+      const dy = (scene.grid.length - 2) * TILE;
+      const doorGlow = k.add([
+        k.rect(32, 18),
+        k.pos(dx, dy + 16),
+        k.color(255, 238, 176),
+        k.opacity(0),
+        k.z(12),
+      ]) as unknown as { opacity: number };
+      const doorObj = k.add([
+        k.sprite("door-wood", { frame: 0 }),
+        k.pos(dx, dy),
+        k.z(13),
+      ]) as unknown as { frame: number };
+      const applyInteriorDoor = (openVal: number) => {
+        doorObj.frame = Math.min(3, Math.floor(openVal * 3.99));
+        doorGlow.opacity = openVal * 0.7;
+      };
+      doors.push({
+        x: 6,
+        y: scene.grid.length - 1,
+        to: "city",
+        sign: "Sair para o Oásis",
+        open: 0,
+        apply: applyInteriorDoor,
+      });
+    }
+
     for (const b of scene.buildings) {
       const w = b.w * TILE;
       // Building Sprite with warm sun-baked desert tint
@@ -1057,27 +1120,15 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       const isModern = b.sprite === "pokecenter" || b.sprite === "lab" || b.sprite === "pokemart";
       const doorKey = isModern ? "door-modern" : "door-wood";
 
-      // Desert Canvas Sun Awning over entrance
-      const awningW = 38;
-      const awningH = 12;
+      // Compact entrance canopy; the building art remains the visual focus.
       k.add([
-        k.rect(awningW, awningH, { radius: 2 }),
-        k.pos(dx - 3, dy - 10),
-        k.color(196, 78, 48),
-        k.outline(1, k.rgb(120, 42, 24)),
+        k.rect(30, 7, { radius: 1 }),
+        k.pos(dx + 1, dy - 6),
+        k.color(176, 86, 52),
+        k.outline(1, k.rgb(118, 48, 32)),
         k.z(14),
       ]);
-      // Awning desert stripes
-      for (let s = 0; s < 4; s++) {
-        k.add([
-          k.rect(4, awningH),
-          k.pos(dx - 3 + s * 10 + 2, dy - 10),
-          k.color(238, 218, 172),
-          k.z(15),
-        ]);
-      }
-
-      // Sandstone doorframe arch carved into the building facade
+            // Sandstone doorframe arch carved into the building facade
       k.add([
         k.rect(34, 34, { radius: 2 }),
         k.pos(dx - 1, dy - 1),
@@ -1140,12 +1191,13 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         apply: applyDoor,
       });
 
-      // Building sign label
+      // Small readable plaque instead of long floating text over the facade.
       k.add([
-        k.text(b.sign, { size: 9, font: "monospace", align: "center", width: w + 80 }),
-        k.pos(b.x * TILE + w / 2, (b.y + b.h) * TILE + 4),
+        k.rect(Math.min(56, w + 18), 9, { radius: 1 }),
+        k.pos(b.x * TILE + w / 2, (b.y + b.h) * TILE + 2),
         k.anchor("top"),
-        k.color(44, 34, 28),
+        k.color(236, 204, 148),
+        k.outline(1, k.rgb(126, 86, 54)),
         k.z(14),
       ]);
     }
