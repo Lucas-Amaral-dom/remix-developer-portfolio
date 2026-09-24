@@ -169,13 +169,13 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
   const k: KAPLAYCtx = kaplay({
     canvas,
     width: 960,
-    height: 704,
+    height: 540,
     background: [36, 26, 22],
     global: false,
     crisp: true,
     pixelDensity: 1,
     stretch: true,
-    letterbox: true,
+    letterbox: false,
     debug: false,
     focus: false,
   });
@@ -1387,6 +1387,9 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
     const player = makePlayer(spawn, initialFacing) as unknown as PlayerObj;
     activePlayer = player;
     state.facing = initialFacing;
+    cameraX = player.pos.x;
+    cameraY = player.pos.y;
+    k.setCamPos(Math.round(cameraX), Math.round(cameraY));
 
     // Player soft pixel drop shadow aligned under feet
     const playerShadow = k.add([
@@ -1399,6 +1402,9 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
     ]) as unknown as { pos: { x: number; y: number } };
 
     const SPEED = 120;
+
+    let cameraX = player.pos.x;
+    let cameraY = player.pos.y;
 
     k.onUpdate(() => {
       // Keep player shadow aligned under feet
@@ -1781,7 +1787,9 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         cb.onPrompt(best ? { label: best.label, action: best.action } : null);
       }
 
-      // Direct instant camera tracking with map boundary clamping — eliminates camera stutter and angle-change lag
+      // Smooth follow with proper map-boundary clamping.
+      // This avoids the "camera stuck" feeling while keeping the player readable
+      // near the center and preventing the camera from exposing void space.
       const halfW = k.width() / 2;
       const halfH = k.height() / 2;
       const targetCx =
@@ -1793,7 +1801,10 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           ? (mapH * TILE) / 2
           : Math.min(Math.max(player.pos.y, halfH), mapH * TILE - halfH);
 
-      k.setCamPos(Math.floor(targetCx), Math.floor(targetCy));
+      const follow = Math.min(1, k.dt() * 12);
+      cameraX += (targetCx - cameraX) * follow;
+      cameraY += (targetCy - cameraY) * follow;
+      k.setCamPos(Math.round(cameraX), Math.round(cameraY));
     });
 
     k.onKeyPress("enter", () => triggerInteract());
