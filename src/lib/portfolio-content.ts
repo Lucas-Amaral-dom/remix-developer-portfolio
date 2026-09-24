@@ -442,6 +442,14 @@ export function buildDialogues(data: PortfolioData): Record<string, Dialogue> {
     ],
   };
 
+  out["oasis-plaza"] = {
+    speaker: "Praça do Oásis",
+    pages: [
+      { text: "Uma pequena praça sombreada entre o lago e as ruas principais." },
+      { text: "É um ponto de encontro para treinadores descansarem, trocarem ideias e seguirem viagem." },
+    ],
+  };
+
   out["oasis-lake"] = {
     speaker: "Pescadora do Oásis",
     pages: [
