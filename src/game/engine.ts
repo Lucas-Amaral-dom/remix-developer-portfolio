@@ -139,9 +139,6 @@ const trainerFrame = (variant: number, dir: Dir, walkFrame = 0) =>
     TRAINER_FRAMES_PER_DIRECTION +
   (Math.abs(walkFrame) % TRAINER_FRAMES_PER_DIRECTION);
 
-// Each supplied trainer sheet has four poses per direction.
-const trainerWalkFrame = (phase: number) =>
-  Math.floor(Math.max(0, phase) * TRAINER_FRAMES_PER_DIRECTION) % TRAINER_FRAMES_PER_DIRECTION;
 const npcTrainerVariant = (id: number, npcId?: string) =>
   npcId && TRAINER_VARIANT_BY_ID[npcId] !== undefined
     ? TRAINER_VARIANT_BY_ID[npcId]
