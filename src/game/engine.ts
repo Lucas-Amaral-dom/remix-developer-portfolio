@@ -1464,6 +1464,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       player.z = 20 + Math.floor(player.pos.y / 8);
       for (const npc of activeNpcs) {
         npc.spr.z = 20 + Math.floor(npc.spr.pos.y / 8);
+        npc.battleSpr.z = npc.spr.z + 1;
       }
 
       // Doors slide open smoothly when near
