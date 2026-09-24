@@ -24,6 +24,14 @@ import trainerIdleAtlas from "@/assets/trainers-overworld-idle-atlas.png";
 import doorModernSprite from "@/assets/door-modern.png";
 import doorWoodSprite from "@/assets/door-wood.png";
 
+// KAPLAY components can be torn down while an animation callback is still queued.
+// Keep visual updates defensive so scene transitions never write into a missing
+// position/scale component.
+const setPosX = (obj: any, value: number) => { if (obj?.pos) setPosX(obj, value); };
+const setPosY = (obj: any, value: number) => { if (obj?.pos) setPosY(obj, value); };
+const setScaleX = (obj: any, value: number) => { if (obj?.scale) setScaleX(obj, value); };
+const setScaleY = (obj: any, value: number) => { if (obj?.scale) setScaleY(obj, value); };
+
 import pikachuSprite from "@/assets/pokemon/pikachu.png";
 import trapinchSprite from "@/assets/pokemon/trapinch.png";
 import chanseySprite from "@/assets/pokemon/chansey.png";
@@ -280,7 +288,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           k.z(3),
         ]) as unknown as { pos: { y: number }; opacity: number };
         k.onUpdate(() => {
-          foamN.pos.y = py + Math.sin(k.time() * 2.5 + col * 0.8) * 1.5;
+          setPosY(foamN, py + Math.sin(k.time() * 2.5 + col * 0.8) * 1.5);
           foamN.opacity = 0.5 + Math.sin(k.time() * 2.5 + col * 0.8) * 0.35;
         });
       }
@@ -293,7 +301,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           k.z(3),
         ]) as unknown as { pos: { y: number }; opacity: number };
         k.onUpdate(() => {
-          foamS.pos.y = py + TILE - 4 - Math.sin(k.time() * 2.5 + col * 0.8) * 1.5;
+          setPosY(foamS, py + TILE - 4 - Math.sin(k.time() * 2.5 + col * 0.8) * 1.5);
           foamS.opacity = 0.5 + Math.sin(k.time() * 2.5 + col * 0.8) * 0.35;
         });
       }
@@ -306,7 +314,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           k.z(3),
         ]) as unknown as { pos: { x: number }; opacity: number };
         k.onUpdate(() => {
-          foamW.pos.x = px + Math.sin(k.time() * 2.5 + row * 0.8) * 1.5;
+          setPosX(foamW, px + Math.sin(k.time() * 2.5 + row * 0.8) * 1.5);
           foamW.opacity = 0.5 + Math.sin(k.time() * 2.5 + row * 0.8) * 0.35;
         });
       }
@@ -319,7 +327,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           k.z(3),
         ]) as unknown as { pos: { x: number }; opacity: number };
         k.onUpdate(() => {
-          foamE.pos.x = px + TILE - 4 - Math.sin(k.time() * 2.5 + row * 0.8) * 1.5;
+          setPosX(foamE, px + TILE - 4 - Math.sin(k.time() * 2.5 + row * 0.8) * 1.5);
           foamE.opacity = 0.5 + Math.sin(k.time() * 2.5 + row * 0.8) * 0.35;
         });
       }
@@ -342,8 +350,8 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       const ox = px + 4;
       const oxB = px + 16;
       k.onUpdate(() => {
-        waveA.pos.x = ox + Math.sin(k.time() * 2.0 + col * 1.5) * 3;
-        waveB.pos.x = oxB + Math.cos(k.time() * 1.7 + row * 1.5) * 3;
+        setPosX(waveA, ox + Math.sin(k.time() * 2.0 + col * 1.5) * 3);
+        setPosX(waveB, oxB + Math.cos(k.time() * 1.7 + row * 1.5) * 3);
       });
 
       // Natural expanding water ripple rings
@@ -357,8 +365,8 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       ]) as unknown as { scale: { x: number; y: number }; opacity: number };
       k.onUpdate(() => {
         const ph = (k.time() * 0.7 + (col * 0.37 + row * 0.73)) % 1;
-        ripple.scale.x = 0.8 + ph * 3.2;
-        ripple.scale.y = 0.4 + ph * 1.6;
+        setScaleX(ripple, 0.8 + ph * 3.2);
+        setScaleY(ripple, 0.4 + ph * 1.6);
         ripple.opacity = Math.max(0, (1 - ph) * 0.45);
       });
 
@@ -405,9 +413,9 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       ]) as unknown as { pos: { y: number } };
       k.onUpdate(() => {
         const t = k.time() * 90;
-        s1.pos.y = py + (t % 12) - 6;
-        s2.pos.y = py + ((t + 6) % 12) - 6;
-        s3.pos.y = py + ((t + 3) % 12) - 6;
+        setPosY(s1, py + (t % 12) - 6);
+        setPosY(s2, py + ((t + 6) % 12) - 6);
+        setPosY(s3, py + ((t + 3) % 12) - 6);
       });
       // Bottom splash mist
       const mist = k.add([
@@ -419,7 +427,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         k.z(4),
       ]) as unknown as { scale: { x: number; y: number }; opacity: number };
       k.onUpdate(() => {
-        mist.scale.y = 0.8 + Math.sin(k.time() * 9 + col) * 0.4;
+        setScaleY(mist, 0.8 + Math.sin(k.time() * 9 + col) * 0.4);
         mist.opacity = 0.65 + Math.sin(k.time() * 8) * 0.25;
       });
     }
@@ -581,8 +589,8 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       const cy = py + 14;
       k.onUpdate(() => {
         const flicker = Math.sin(k.time() * 9 + col) * 2;
-        flame.pos.y = fy + flicker;
-        core.pos.y = cy + flicker;
+        setPosY(flame, fy + flicker);
+        setPosY(core, cy + flicker);
       });
     }
 
@@ -686,10 +694,10 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         const baseY = py + (isLarge ? 12 : 15);
         k.onUpdate(() => {
           const t = k.time();
-          spr.pos.y = baseY + Math.sin(t * 3.2 + col * 0.7) * 1.5;
+          setPosY(spr, baseY + Math.sin(t * 3.2 + col * 0.7) * 1.5);
           // Subtle natural breathing squash & stretch
-          spr.scale.y = baseScale + Math.sin(t * 3.2 + col * 0.7) * 0.02;
-          spr.scale.x = baseScale - Math.sin(t * 3.2 + col * 0.7) * 0.015;
+          setScaleY(spr, baseScale + Math.sin(t * 3.2 + col * 0.7) * 0.02);
+          setScaleX(spr, baseScale - Math.sin(t * 3.2 + col * 0.7) * 0.015);
         });
         break;
       }
@@ -728,10 +736,10 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         const dy = py + 16;
         k.onUpdate(() => {
           const t = k.time();
-          duckPos.pos.y = dy + Math.sin(t * 3.2 + col) * 2;
-          duckPos.pos.x = px + 14 + Math.sin(t * 1.5 + col) * 3;
-          wake1.scale.x = 1 + Math.sin(t * 3) * 0.3;
-          wake2.scale.x = 1 + Math.cos(t * 3) * 0.3;
+          setPosY(duckPos, dy + Math.sin(t * 3.2 + col) * 2);
+          setPosX(duckPos, px + 14 + Math.sin(t * 1.5 + col) * 3);
+          setScaleX(wake1, 1 + Math.sin(t * 3) * 0.3);
+          setScaleX(wake2, 1 + Math.cos(t * 3) * 0.3);
         });
         break;
       }
@@ -755,10 +763,10 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         const fy = py + 4;
         k.onUpdate(() => {
           const t = k.time();
-          flame.pos.y = fy + Math.sin(t * 9) * 2;
+          setPosY(flame, fy + Math.sin(t * 9) * 2);
           const sparkPhase = (t * 2) % 1;
-          spark.pos.y = py + 8 - sparkPhase * 16;
-          spark.pos.x = px + 15 + Math.sin(t * 7) * 4;
+          setPosY(spark, py + 8 - sparkPhase * 16);
+          setPosX(spark, px + 15 + Math.sin(t * 7) * 4);
           spark.opacity = 1 - sparkPhase;
         });
         break;
@@ -787,7 +795,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         k.add([k.circle(3), k.pos(px + 16, py + 8), k.color(255, 240, 120), k.z(10)]);
         const bfy = py + 3;
         k.onUpdate(() => {
-          bFlame.pos.y = bfy + Math.sin(k.time() * 8.5) * 1.5;
+          setPosY(bFlame, bfy + Math.sin(k.time() * 8.5) * 1.5);
         });
         break;
       }
@@ -804,8 +812,8 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           k.z(8),
         ]) as unknown as { scale: { x: number; y: number } };
         k.onUpdate(() => {
-          jet.scale.x = 0.8 + Math.sin(k.time() * 6) * 0.3;
-          jet.scale.y = 0.8 + Math.cos(k.time() * 6) * 0.3;
+          setScaleX(jet, 0.8 + Math.sin(k.time() * 6) * 0.3);
+          setScaleY(jet, 0.8 + Math.cos(k.time() * 6) * 0.3);
         });
         break;
       }
@@ -898,8 +906,8 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           k.z(10),
         ]) as unknown as { scale: { x: number; y: number } };
         k.onUpdate(() => {
-          water.scale.x = 0.8 + Math.sin(k.time() * 2.8 + item.x) * 0.15;
-          water.scale.y = 0.8 + Math.cos(k.time() * 2.8 + item.y) * 0.1;
+          setScaleX(water, 0.8 + Math.sin(k.time() * 2.8 + item.x) * 0.15);
+          setScaleY(water, 0.8 + Math.cos(k.time() * 2.8 + item.y) * 0.1);
         });
         break;
       }
@@ -1315,8 +1323,8 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
 
     k.onUpdate(() => {
       // Keep player shadow aligned under feet
-      playerShadow.pos.x = player.pos.x;
-      playerShadow.pos.y = player.pos.y - 2;
+      setPosX(playerShadow, player.pos.x);
+      setPosY(playerShadow, player.pos.y - 2);
 
       // Dynamic Y-depth sorting so characters and player never clip through roofs, walls or each other
       player.z = 20 + Math.floor(player.pos.y / 8);
@@ -1343,15 +1351,15 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           p.idleTimer -= k.dt();
           // Gentle breathing idle
           const t = k.time();
-          p.spr.scale.y = p.baseScale + Math.sin(t * 3.5 + p.curCol) * 0.02;
-          p.spr.scale.x = (p.facing === "left" ? -1 : 1) * p.baseScale;
+          setScaleY(p.spr, p.baseScale + Math.sin(t * 3.5 + p.curCol) * 0.02);
+          setScaleX(p.spr, (p.facing === "left" ? -1 : 1) * p.baseScale);
           p.spr.angle = 0;
 
           if (p.idleTimer <= 0) {
             if (Math.random() < 0.45) {
               // Turn direction
               p.facing = p.facing === "left" ? "right" : "left";
-              p.spr.scale.x = (p.facing === "left" ? -1 : 1) * p.baseScale;
+              setScaleX(p.spr, (p.facing === "left" ? -1 : 1) * p.baseScale);
               p.idleTimer = 1.6 + Math.random() * 2.2;
             } else {
               // Take a roaming step
@@ -1389,11 +1397,11 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           const hop = Math.abs(Math.sin(prog * Math.PI * 3.5)) * 3;
           p.spr.angle = Math.sin(prog * Math.PI * 3.5) * 6;
 
-          p.spr.scale.x = (p.facing === "left" ? -1 : 1) * p.baseScale;
-          p.spr.pos.x = curPx;
-          p.spr.pos.y = curPy - hop;
-          p.shadow.pos.x = curPx;
-          p.shadow.pos.y = curPy;
+          setScaleX(p.spr, (p.facing === "left" ? -1 : 1) * p.baseScale);
+          setPosX(p.spr, curPx);
+          setPosY(p.spr, curPy - hop);
+          setPosX(p.shadow, curPx);
+          setPosY(p.shadow, curPy);
 
           if (p.walkProgress >= 1) {
             p.curCol = Math.round((p.targetX - TILE / 2) / TILE);
@@ -1402,7 +1410,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
             p.item.y = p.curRow;
             p.state = "idle";
             p.spr.angle = 0;
-            p.spr.pos.y = curPy;
+            setPosY(p.spr, curPy);
             p.idleTimer = 1.8 + Math.random() * 2.8;
           }
         }
@@ -1484,12 +1492,12 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           const curPy = npc.fromY + (npc.targetY - npc.fromY) * prog;
           const stepBob = stepPhase === 1 || stepPhase === 3 ? 1 : 0;
 
-          npc.spr.pos.x = curPx;
-          npc.spr.pos.y = curPy + stepBob;
-          npc.shadow.pos.x = curPx;
-          npc.shadow.pos.y = curPy;
-          npc.emote.pos.x = curPx;
-          npc.emote.pos.y = curPy - 42;
+          setPosX(npc.spr, curPx);
+          setPosY(npc.spr, curPy + stepBob);
+          setPosX(npc.shadow, curPx);
+          setPosY(npc.shadow, curPy);
+          setPosX(npc.emote, curPx);
+          setPosY(npc.emote, curPy - 42);
 
           if (npc.walkProgress >= 1) {
             npc.curCol = Math.round((npc.targetX - TILE / 2) / TILE);
@@ -1498,7 +1506,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
             npc.item.y = npc.curRow;
             npc.state = "idle";
             npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing);
-            npc.spr.pos.y = curPy;
+            setPosY(npc.spr, curPy);
             npc.idleTimer = 1.8 + Math.random() * 2.5;
           }
         }
@@ -1651,8 +1659,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
                 if (matchedPoke) {
                   matchedPoke.state = "talking";
                   matchedPoke.facing = player.pos.x < matchedPoke.spr.pos.x ? "left" : "right";
-                  matchedPoke.spr.scale.x =
-                    (matchedPoke.facing === "left" ? -1 : 1) * matchedPoke.baseScale;
+                  setScaleX(matchedPoke.spr, (matchedPoke.facing === "left" ? -1 : 1) * matchedPoke.baseScale);
                   matchedPoke.emote.opacity = 1;
                   // Joyful hop
                   matchedPoke.spr.pos.y -= 5;
@@ -1722,8 +1729,8 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         if (activePlayer) {
           activePlayer.facing = "up";
           activePlayer.frame = trainerFrame(0, "up");
-          activePlayer.pos.x = doorObj.x * TILE + TILE / 2;
-          activePlayer.pos.y = doorObj.y * TILE + 2;
+          setPosX(activePlayer, doorObj.x * TILE + TILE / 2);
+          setPosY(activePlayer, doorObj.y * TILE + 2);
         }
       }
     }
