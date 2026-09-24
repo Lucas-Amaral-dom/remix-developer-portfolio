@@ -493,19 +493,8 @@ function World({
           isFullscreen || isMaximized ? "w-screen h-screen" : ""
         }`}
       >
-        <div
-          className={`absolute inset-0 flex items-center justify-center ${
-            isFullscreen || isMaximized ? "p-0" : "p-2"
-          }`}
-        >
-          <div
-            ref={hostRef}
-            className={`${
-              isFullscreen || isMaximized
-                ? "w-full h-full max-w-none aspect-auto"
-                : "aspect-[15/11] max-h-full w-full max-w-[960px]"
-            } relative overflow-hidden`}
-          />
+        <div className="absolute inset-0 overflow-hidden">
+          <div ref={hostRef} className="relative h-full w-full overflow-hidden" />
         </div>
 
         {/* Pokemon GBA Location Toast Banner (auto-hides in ~2s or on click) */}
