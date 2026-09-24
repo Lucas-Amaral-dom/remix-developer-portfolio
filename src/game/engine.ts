@@ -23,6 +23,8 @@ import cottageSprite from "@/assets/build-cottage.png";
 import trainerIdleAtlas from "@/assets/trainers-overworld-idle-atlas.png";
 import doorModernSprite from "@/assets/door-modern.png";
 import doorWoodSprite from "@/assets/door-wood.png";
+import desertSandTile from "@/assets/tiles/desert-sand.png";
+import desertBrickTile from "@/assets/tiles/desert-brick.png";
 
 // KAPLAY components can be torn down while an animation callback is still queued.
 // Keep visual updates defensive so scene transitions never write into a missing
@@ -170,6 +172,8 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
   k.loadSprite("trainer-chars", trainerIdleAtlas, { sliceX: TRAINER_VARIANTS * 4, sliceY: 1 });
   k.loadSprite("door-modern", doorModernSprite, { sliceX: 4, sliceY: 1 });
   k.loadSprite("door-wood", doorWoodSprite, { sliceX: 4, sliceY: 1 });
+   k.loadSprite("terrain-sand", desertSandTile);
+   k.loadSprite("terrain-brick", desertBrickTile);
 
   const state = {
     paused: false,
@@ -199,6 +203,16 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
 
     // Base background tile
     k.add([k.rect(TILE, TILE), k.pos(px, py), k.color(rgb(ch)), k.z(0)]);
+
+    // Authentic Epsilon terrain tiles. The procedural shading below remains
+    // as a subtle overlay, so the map gains the original pixel-art texture
+    // without changing collision/grid logic.
+    if (ch === "s") {
+      k.add([k.sprite("terrain-sand"), k.pos(px + TILE / 2, py + TILE / 2), k.z(0)]);
+    }
+    if (ch === "p") {
+      k.add([k.sprite("terrain-brick"), k.pos(px + TILE / 2, py + TILE / 2), k.z(1)]);
+    }
 
     // Desert sand texture
     if (
