@@ -22,3 +22,15 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Portfolio data aligned with GitHub
+
+The portfolio now mirrors the technology symbols used in the GitHub profile README:
+Java, JavaScript, React, HTML5, CSS3, MySQL, Git and GitHub.
+
+Featured projects were aligned with the public repositories:
+- Biblioteca: front-end `biblioteca-front` + back-end `biblioteca-back-`
+- Projeto Guarda-vidas: `projeto_guardavidas` + `projeto-guardavidas-Back`
+- Portfólio RPG: `portfolio`
+
+The admin panel can store a project screenshot (`image_url`) and a comma-separated technology list (`technologies`) after applying the Supabase migration in `supabase/migrations/20260924210000_add_project_showcase_metadata.sql`.
