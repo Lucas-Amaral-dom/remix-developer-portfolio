@@ -10,61 +10,53 @@ interface Props {
   formSlot?: React.ReactNode;
 }
 
-const SPEAKER_AVATARS: Record<string, string> = {
-  // Trainers matching map NPCs
-  "Lutador de Sparring": "https://play.pokemonshowdown.com/sprites/trainers/blackbelt.png",
-  "Pescadora do Oásis": "https://play.pokemonshowdown.com/sprites/trainers/fisherman.png",
-  "Ranger do Santuário": "https://play.pokemonshowdown.com/sprites/trainers/hiker.png",
-  "Mestre da Arena": "https://play.pokemonshowdown.com/sprites/trainers/veteran.png",
-  "Viajante do Deserto": "https://play.pokemonshowdown.com/sprites/trainers/brendan.png",
-  "Campista Dev": "https://play.pokemonshowdown.com/sprites/trainers/camper.png",
-  "Desenvolvedor da Oficina": "https://play.pokemonshowdown.com/sprites/trainers/scientist.png",
-  "Desenvolvedor Full Stack": "https://play.pokemonshowdown.com/sprites/trainers/scientist.png",
-  "Mecânica de Software": "https://play.pokemonshowdown.com/sprites/trainers/lass.png",
-  "Enfermeira Joy": "https://play.pokemonshowdown.com/sprites/trainers/nurse.png",
-  "Hoteleira do Oásis": "https://play.pokemonshowdown.com/sprites/trainers/beauty.png",
-  "Arquiteto de Software": "https://play.pokemonshowdown.com/sprites/trainers/acetrainer.png",
-  "Mercador do Bazar": "https://play.pokemonshowdown.com/sprites/trainers/gentleman.png",
-  "Mercador de Frutas e Itens": "https://play.pokemonshowdown.com/sprites/trainers/gentleman.png",
-  Guia: "https://play.pokemonshowdown.com/sprites/trainers/acetrainerf.png",
-  "Guia do Oásis": "https://play.pokemonshowdown.com/sprites/trainers/acetrainerf.png",
-  "Garoto do parquinho": "https://play.pokemonshowdown.com/sprites/trainers/youngster.png",
-  "Instrutor SENAI": "https://play.pokemonshowdown.com/sprites/trainers/scientist.png",
-  "Juíza da Arena": "https://play.pokemonshowdown.com/sprites/trainers/contestjudge.png",
-  Atendente: "https://play.pokemonshowdown.com/sprites/trainers/beauty.png",
-  Lucas: "https://play.pokemonshowdown.com/sprites/trainers/lucas.png",
-  "Lucas Amaral": "https://play.pokemonshowdown.com/sprites/trainers/lucas.png",
-
-  // Pokémon companions & wild spawns
-  Pikachu:
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/25.gif",
-  Psyduck:
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/54.gif",
-  "Pato do Oásis":
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/54.gif",
-  Machop:
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/66.gif",
-  Charmander:
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/4.gif",
-  Trapinch:
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/328.gif",
-  Flygon:
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/330.gif",
-  Eevee:
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/133.gif",
-  Porygon:
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/137.gif",
-  Arcanine:
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/59.gif",
-  Chansey:
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/113.gif",
-  Bulbasaur:
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/1.gif",
-  "Pássaro de Batalha":
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/277.gif",
-  "Dino Mascote":
-    "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/246.gif",
+const SPEAKER_VARIANTS: Record<string, number> = {
+  Lucas: 0,
+  "Lucas Amaral": 0,
+  Guia: 1,
+  "Guia do Oásis": 1,
+  "Pescadora do Oásis": 2,
+  "Viajante do Deserto": 2,
+  "Campista Dev": 3,
+  "Desenvolvedor da Oficina": 4,
+  "Desenvolvedor Full Stack": 4,
+  "Mecânica de Software": 3,
+  "Lutador de Sparring": 1,
+  "Mestre da Arena": 2,
+  "Ranger do Santuário": 3,
+  "Mercador do Bazar": 4,
+  "Mercador de Frutas e Itens": 4,
+  "Hoteleira do Oásis": 1,
+  "Enfermeira Joy": 2,
+  "Arquiteto de Software": 4,
+  "Instrutor SENAI": 4,
+  "Juíza da Arena": 1,
+  Atendente: 2,
 };
+
+function TrainerAvatar({ speaker }: { speaker: string }) {
+  const variant = SPEAKER_VARIANTS[speaker] ?? 1;
+  // trainer-overworld-idle-atlas: 5 variants × 16 frames, 32×48 per cell.
+  // Show the first (down/idle) frame at 2× scale so the dialogue portrait
+  // and the map NPC share the exact same pixel source.
+  const cell = 32 * 2;
+  const frame = variant * 16;
+  const x = -(frame % 20) * cell;
+  const y = -Math.floor(frame / 20) * 48 * 2;
+  return (
+    <div
+      aria-label={speaker}
+      className="h-24 w-16 shrink-0 overflow-hidden rounded-md border-2 border-amber-800/60 bg-gradient-to-b from-amber-950/40 via-amber-900/20 to-black/50 shadow-md"
+      style={{
+        backgroundImage: 'url("/assets/trainers-overworld-idle-atlas.png")',
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "1280px 384px",
+        backgroundPosition: `${x}px ${y}px`,
+        imageRendering: "pixelated",
+      }}
+    />
+  );
+}
 
 /** Types the current page out with instant skip support on user click or key */
 function useTypewriter(text: string) {
@@ -141,8 +133,6 @@ export function DialogueBox({ dialogue, onClose, onStartBattle, onHeal, formSlot
     return () => window.removeEventListener("keydown", onKey, true);
   }, []);
 
-  const avatarUrl = SPEAKER_AVATARS[dialogue.speaker];
-
   return (
     <div
       className="pointer-events-auto absolute inset-x-2 bottom-2 z-30 md:inset-x-8 md:bottom-6 cursor-pointer select-none"
@@ -158,17 +148,7 @@ export function DialogueBox({ dialogue, onClose, onStartBattle, onHeal, formSlot
         </span>
 
         <div className="flex items-start gap-3.5 md:gap-5">
-          {avatarUrl && (
-            <div className="shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-md border-2 border-amber-800/60 bg-gradient-to-b from-amber-950/40 via-amber-900/20 to-black/50 flex items-center justify-center overflow-hidden p-1 shadow-md">
-              <img
-                src={avatarUrl}
-                alt={dialogue.speaker}
-                className="w-full h-full object-contain filter drop-shadow image-pixelated transition-transform hover:scale-105"
-                style={{ imageRendering: "pixelated" }}
-                referrerPolicy="no-referrer"
-              />
-            </div>
-          )}
+          <TrainerAvatar speaker={dialogue.speaker} />
           <p className="flex-1 min-h-[3.5rem] text-sm leading-relaxed whitespace-pre-line md:text-base">
             {shown}
             {!done && (
