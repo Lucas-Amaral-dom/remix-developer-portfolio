@@ -29,10 +29,11 @@ import desertBrickTile from "@/assets/tiles/desert-brick.png";
 // KAPLAY components can be torn down while an animation callback is still queued.
 // Keep visual updates defensive so scene transitions never write into a missing
 // position/scale component.
-const setPosX = (obj: any, value: number) => { if (obj?.pos) setPosX(obj, value); };
-const setPosY = (obj: any, value: number) => { if (obj?.pos) setPosY(obj, value); };
-const setScaleX = (obj: any, value: number) => { if (obj?.scale) setScaleX(obj, value); };
-const setScaleY = (obj: any, value: number) => { if (obj?.scale) setScaleY(obj, value); };
+const setPosX = (obj: any, value: number) => { if (obj?.pos) obj.pos.x = value; };
+const setPosY = (obj: any, value: number) => { if (obj?.pos) obj.pos.y = value; };
+const setScaleX = (obj: any, value: number) => { if (obj?.scale) obj.scale.x = value; };
+const setScaleY = (obj: any, value: number) => { if (obj?.scale) obj.scale.y = value; };
+
 
 import pikachuSprite from "@/assets/pokemon/pikachu.png";
 import trapinchSprite from "@/assets/pokemon/trapinch.png";
