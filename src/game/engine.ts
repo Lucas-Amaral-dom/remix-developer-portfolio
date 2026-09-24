@@ -1841,7 +1841,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
     sound.playDoorChime();
 
     // Determine center of transition (screen coordinates)
-    let origin = { x: 960 / 2, y: 704 / 2 };
+    let origin = { x: 960 / 2, y: 540 / 2 };
     try {
       if (activePlayer && activePlayer.pos) {
         const screenPos = k.toScreen(activePlayer.pos);
@@ -1877,7 +1877,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           );
           return { x: spawnScreen.x, y: spawnScreen.y };
         } catch {
-          return { x: 960 / 2, y: 704 / 2 };
+          return { x: 960 / 2, y: 540 / 2 };
         }
       },
       onComplete: () => {
