@@ -1102,7 +1102,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
     currentDoors = doors;
 
     if (scene.indoor) {
-      const dx = 6 * TILE;
+      const dx = 7 * TILE;
       const dy = (scene.grid.length - 2) * TILE;
       const doorGlow = k.add([
         k.rect(32, 18),
@@ -1121,7 +1121,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         doorGlow.opacity = openVal * 0.7;
       };
       doors.push({
-        x: 6,
+        x: 7,
         y: scene.grid.length - 1,
         to: "city",
         sign: "Sair para o Oásis",
@@ -1132,79 +1132,33 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
 
     for (const b of scene.buildings) {
       const w = b.w * TILE;
-      // Building Sprite with warm sun-baked desert tint
+      // Keep the building sprite as the main architectural asset. The house asset
+      // is now sourced from the original Town tileset and already contains its roof,
+      // facade and windows, so no synthetic roof/AI-looking overlay is added.
+      const spriteScale = b.sprite === "home" ? 1 : (w + 8) / 816;
       k.add([
         k.sprite(b.sprite),
         k.pos(b.x * TILE - 4, b.y * TILE - TILE * 1.5),
-        k.scale((w + 8) / 816),
-        k.color(255, 246, 230),
+        k.scale(spriteScale),
         k.z(12),
-      ]);
-
-      // Desert architectural roof cresting (terracotta eaves)
-      k.add([
-        k.rect(w + 10, 5, { radius: 2 }),
-        k.pos(b.x * TILE - 5, b.y * TILE - TILE * 1.5 - 2),
-        k.color(186, 86, 50),
-        k.outline(1, k.rgb(138, 54, 28)),
-        k.z(13),
       ]);
 
       const dx = b.door.x * TILE;
       const dy = b.door.y * TILE - TILE;
-
       const isModern = b.sprite === "pokecenter" || b.sprite === "lab" || b.sprite === "pokemart";
       const doorKey = isModern ? "door-modern" : "door-wood";
 
-      // Compact entrance canopy; the building art remains the visual focus.
-      k.add([
-        k.rect(30, 7, { radius: 1 }),
-        k.pos(dx + 1, dy - 6),
-        k.color(176, 86, 52),
-        k.outline(1, k.rgb(118, 48, 32)),
-        k.z(14),
-      ]);
-            // Sandstone doorframe arch carved into the building facade
-      k.add([
-        k.rect(34, 34, { radius: 2 }),
-        k.pos(dx - 1, dy - 1),
-        k.color(214, 182, 138),
-        k.outline(1, k.rgb(148, 112, 78)),
-        k.z(12),
-      ]);
-
-      // Hanging desert brass lantern beside the entrance
-      const lantern = k.add([
-        k.rect(4, 7, { radius: 1 }),
-        k.pos(dx - 7, dy + 10),
-        k.color(248, 194, 72),
-        k.outline(1, k.rgb(112, 76, 32)),
-        k.z(15),
-      ]);
-      const lanternGlow = k.add([
-        k.circle(9),
-        k.pos(dx - 5, dy + 13),
-        k.color(255, 214, 110),
-        k.opacity(0.24),
-        k.z(14),
-      ]) as unknown as { opacity: number };
-      k.onUpdate(() => {
-        lanternGlow.opacity = 0.2 + Math.sin(k.time() * 5 + dx) * 0.08;
-      });
-
-      // Interior doorway depth opening
-      k.add([k.rect(32, 32), k.pos(dx, dy), k.color(28, 18, 14), k.z(12)]);
-
-      // Warm golden interior illumination spilling forward when door opens
+      // Door opening is kept functional, but the old synthetic arch/canopy is gone.
+      // This leaves the source building art visually intact and makes the entrance read
+      // as part of the building instead of an overlay pasted on top.
       const doorGlow = k.add([
-        k.rect(32, 18),
-        k.pos(dx, dy + 16),
+        k.rect(28, 16),
+        k.pos(dx + 2, dy + 15),
         k.color(255, 238, 176),
         k.opacity(0),
         k.z(12),
       ]) as unknown as { opacity: number };
 
-      // High-quality 4-frame animated pixel art door sprite embedded flush on the facade
       const doorObj = k.add([
         k.sprite(doorKey, { frame: 0 }),
         k.pos(dx, dy),
@@ -1212,10 +1166,8 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       ]) as unknown as { frame: number };
 
       const applyDoor = (openVal: number) => {
-        // Map 0..1 to frames 0, 1, 2, 3 smoothly
-        const frameIdx = Math.min(3, Math.floor(openVal * 3.99));
-        doorObj.frame = frameIdx;
-        doorGlow.opacity = openVal * 0.7;
+        doorObj.frame = Math.min(3, Math.floor(openVal * 3.99));
+        doorGlow.opacity = openVal * 0.55;
       };
 
       doors.push({
@@ -1227,7 +1179,6 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         apply: applyDoor,
       });
 
-      // Small readable plaque instead of long floating text over the facade.
       k.add([
         k.rect(Math.min(56, w + 18), 9, { radius: 1 }),
         k.pos(b.x * TILE + w / 2, (b.y + b.h) * TILE + 2),
@@ -1627,7 +1578,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           // 0.50..0.75 -> Frame 3 (step right foot)
           // 0.75..1.00 -> Frame 0 (neutral standing)
           const stepPhase = Math.floor(prog * 4);
-          npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing, trainerWalkFrame(prog));
+          npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing, Math.min(3, Math.floor(prog * 4)));
           npc.spr.opacity = 1;
           npc.battleSpr.opacity = 0;
 
@@ -1719,9 +1670,10 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
 
         const movedDist = Math.hypot(player.pos.x - prevX, player.pos.y - prevY);
         if (movedDist > 0.001) {
-          player.step += (movedDist / TILE) * 7.5;
-          // One complete four-frame cycle per tile keeps the animation readable.
-          player.frame = trainerFrame(0, player.facing, trainerWalkFrame(player.step / 2));
+          player.step += (movedDist / TILE) * 4;
+          // The supplied trainer sheets are 4-frame directional walk cycles.
+          // Advance exactly one frame per quarter-tile so feet never appear frozen.
+          player.frame = trainerFrame(0, player.facing, Math.floor(player.step) % 4);
         } else {
           player.step = 0;
           player.frame = trainerFrame(0, player.facing, 0);
