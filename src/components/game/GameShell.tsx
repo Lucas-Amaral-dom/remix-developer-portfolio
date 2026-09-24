@@ -181,6 +181,7 @@ function World({
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<GameHandle | null>(null);
+  const gameDestroyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [scene, setScene] = useState<SceneDef | null>(null);
   const [prompt, setPrompt] = useState<{ label: string; action: string } | null>(null);
   const [dialogueId, setDialogueId] = useState<string | null>(null);
@@ -299,6 +300,15 @@ function World({
 
   useEffect(() => {
     if (!hostRef.current) return;
+    // In React StrictMode the effect is intentionally mounted, cleaned up and
+    // mounted again. Reuse the existing KAPLAY instance during that probe.
+    if (gameRef.current) {
+      if (gameDestroyTimerRef.current) {
+        clearTimeout(gameDestroyTimerRef.current);
+        gameDestroyTimerRef.current = null;
+      }
+      return;
+    }
     const game = createGame(hostRef.current, {
       onDialogue: handleDialogue,
       onScene: (s) => {
@@ -337,19 +347,14 @@ function World({
       },
     });
     gameRef.current = game;
-    // React StrictMode can mount the effect twice during development. Delay the
-    // destructive cleanup by one tick so the second pass reuses the same game
-    // instead of calling kaplay() a second time.
-    let disposed = false;
-    const cleanupTimer = setTimeout(() => {
-      if (disposed) return;
-      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-      game.destroy();
-      if (gameRef.current === game) gameRef.current = null;
-    }, 0);
+    // Delay destruction by one tick so StrictMode's second mount can cancel it.
     return () => {
-      disposed = true;
-      clearTimeout(cleanupTimer);
+      gameDestroyTimerRef.current = setTimeout(() => {
+        if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+        game.destroy();
+        if (gameRef.current === game) gameRef.current = null;
+        gameDestroyTimerRef.current = null;
+      }, 0);
     };
   }, [handleDialogue, handlePrompt]);
 
