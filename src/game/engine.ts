@@ -21,7 +21,15 @@ import innSprite from "@/assets/build-inn.png";
 import workshopSprite from "@/assets/build-workshop.png";
 import cottageSprite from "@/assets/build-cottage.png";
 import trainerOverworldAtlas from "@/assets/trainers-real-overworld-atlas.png";
-import pokemonOverworldAtlas from "@/assets/pokemon-real-overworld-map-atlas.png";
+import trainerDialogueAtlas from "@/assets/trainers-dialogue-atlas.png";
+import pokemonOverworldAtlas from "@/assets/pokemon-real-overworld-walk-atlas.png";
+import interiorHome from "@/assets/interior-home.png";
+import interiorLab from "@/assets/interior-lab.png";
+import interiorShop from "@/assets/interior-shop.png";
+import interiorInn from "@/assets/interior-inn.png";
+import interiorWorkshop from "@/assets/interior-workshop.png";
+import interiorArena from "@/assets/interior-arena.png";
+import interiorPokeCenter from "@/assets/interior-pokecenter.png";
 import doorModernSprite from "@/assets/door-modern.png";
 import doorWoodSprite from "@/assets/door-wood.png";
 import desertSandTile from "@/assets/tiles/desert-sand.png";
@@ -109,6 +117,23 @@ const SPRITES: Record<string, string> = {
 const TRAINER_VARIANTS = 6;
 const TRAINER_DIR_INDEX: Record<Dir, number> = { down: 0, left: 1, right: 2, up: 3 };
 const TRAINER_FRAMES_PER_DIRECTION = 4;
+const TRAINER_VARIANT_BY_ID: Record<string, number> = {
+  "npc-guide-red": 0,
+  "npc-traveler-leaf": 1,
+  "npc-trainer-brendan": 2,
+  "npc-camper-may": 3,
+  "npc-ranger-serena": 4,
+  "npc-dev-lyra": 5,
+  "npc-mechanic-serena": 4,
+  "npc-merchant-leaf": 1,
+  "npc-arena-brendan": 2,
+  "npc-lucas-red": 0,
+  "npc-instructor-lyra": 5,
+  "npc-judge-may": 3,
+  "npc-attendant-serena": 4,
+  "npc-innkeeper-may": 3,
+};
+
 const trainerFrame = (variant: number, dir: Dir, walkFrame = 0) =>
   ((Math.abs(variant) % TRAINER_VARIANTS) * 4 + TRAINER_DIR_INDEX[dir]) *
     TRAINER_FRAMES_PER_DIRECTION +
@@ -117,7 +142,10 @@ const trainerFrame = (variant: number, dir: Dir, walkFrame = 0) =>
 // Each supplied trainer sheet has four poses per direction.
 const trainerWalkFrame = (phase: number) =>
   Math.floor(Math.max(0, phase) * TRAINER_FRAMES_PER_DIRECTION) % TRAINER_FRAMES_PER_DIRECTION;
-const npcTrainerVariant = (id: number) => Math.abs(id) % TRAINER_VARIANTS;
+const npcTrainerVariant = (id: number, npcId?: string) =>
+  npcId && TRAINER_VARIANT_BY_ID[npcId] !== undefined
+    ? TRAINER_VARIANT_BY_ID[npcId]
+    : Math.abs(id) % TRAINER_VARIANTS;
 
 /** minimal structural types so we can mutate kaplay objects with strict TS */
 type LeafObj = { width: number; pos: { x: number; y: number } };
@@ -126,6 +154,7 @@ type PlayerObj = {
   frame: number;
   facing: Dir;
   step: number;
+  z: number;
 };
 
 /** Desert Oasis palette */
