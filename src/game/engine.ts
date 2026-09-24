@@ -44,10 +44,14 @@ import { TransitionManager, type TransitionType } from "./transition";
 // KAPLAY components can be torn down while an animation callback is still queued.
 // Keep visual updates defensive so scene transitions never write into a missing
 // position/scale component.
-const setPosX = (obj: any, value: number) => { if (obj?.pos) obj.pos.x = value; };
-const setPosY = (obj: any, value: number) => { if (obj?.pos) obj.pos.y = value; };
-const setScaleX = (obj: any, value: number) => { if (obj?.scale) obj.scale.x = value; };
-const setScaleY = (obj: any, value: number) => { if (obj?.scale) obj.scale.y = value; };
+type MutableVisual = {
+  pos?: { x: number; y: number };
+  scale?: { x: number; y: number };
+};
+const setPosX = (obj: MutableVisual | null | undefined, value: number) => { if (obj?.pos) obj.pos.x = value; };
+const setPosY = (obj: MutableVisual | null | undefined, value: number) => { if (obj?.pos) obj.pos.y = value; };
+const setScaleX = (obj: MutableVisual | null | undefined, value: number) => { if (obj?.scale) obj.scale.x = value; };
+const setScaleY = (obj: MutableVisual | null | undefined, value: number) => { if (obj?.scale) obj.scale.y = value; };
 
 export type Dir = "up" | "down" | "left" | "right";
 
