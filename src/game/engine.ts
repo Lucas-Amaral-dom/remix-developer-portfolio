@@ -118,6 +118,21 @@ const TRAINER_VARIANTS = 6;
 const TRAINER_DIR_INDEX: Record<Dir, number> = { down: 0, left: 1, right: 2, up: 3 };
 const TRAINER_FRAMES_PER_DIRECTION = 4;
 const TRAINER_VARIANT_BY_ID: Record<string, number> = {
+  "Guia do Oásis": 0,
+  "Viajante do Deserto": 1,
+  "Pescadora do Oásis": 4,
+  "Lutador de Sparring": 2,
+  "Campista Dev": 3,
+  "Desenvolvedor Full Stack": 5,
+  "Mecânica de Software": 4,
+  "Ranger do Santuário": 4,
+  "Mercador de Frutas e Itens": 1,
+  "Mestre de Batalhas": 2,
+  "Instrutor SENAI": 5,
+  "Juíza da Arena": 3,
+  "Atendente": 4,
+  "Hoteleira do Oásis": 3,
+  "Arquiteto de Software": 5,
   "npc-guide-red": 0,
   "npc-traveler-leaf": 1,
   "npc-trainer-brendan": 2,
@@ -1320,7 +1335,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
     // Autonomous Dynamic NPC System
     const activeNpcs: ActiveNpc[] = [];
     for (const item of npcInteractables) {
-      const trainerVariant = npcTrainerVariant(item.npc ?? 0);
+      const trainerVariant = npcTrainerVariant(item.npc ?? 0, item.label);
       const face = item.face ?? "down";
       const px = item.x * TILE + TILE / 2;
       const py = item.y * TILE + TILE;
