@@ -972,7 +972,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
 
   function makePlayer(pos: { x: number; y: number }, initialFacing: Dir = "down") {
     const p = k.add([
-      k.sprite("trainer-chars", { frame: 0 }),
+      k.sprite("trainer-chars", { frame: trainerFrame(0, initialFacing, 0) }),
       k.pos(pos.x * TILE + TILE / 2, pos.y * TILE + TILE),
       k.anchor("bot"),
       k.scale(1.0),
