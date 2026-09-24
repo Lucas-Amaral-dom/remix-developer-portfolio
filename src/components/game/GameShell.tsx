@@ -336,14 +336,17 @@ function World({
         }
       },
     });
-    game.setTransitionType(transitionType);
     gameRef.current = game;
     return () => {
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
       game.destroy();
       gameRef.current = null;
     };
-  }, [handleDialogue, handlePrompt, transitionType]);
+  }, [handleDialogue, handlePrompt]);
+
+  useEffect(() => {
+    gameRef.current?.setTransitionType(transitionType);
+  }, [transitionType]);
 
   useEffect(() => {
     gameRef.current?.setPaused(
