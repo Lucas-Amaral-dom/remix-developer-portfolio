@@ -6,12 +6,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { PixelButton } from "@/components/pixel/PixelButton";
-import {
-  CONTENT_FIELDS,
-  portfolioQuery,
-  type ProjectRow,
-  type SkillRow,
-} from "@/lib/portfolio-content";
+import { CONTENT_FIELDS, portfolioQuery } from "@/lib/portfolio/query";
+import type { ProjectRow, SkillRow } from "@/lib/portfolio/types";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({

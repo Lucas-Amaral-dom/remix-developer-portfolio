@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import type { Dialogue } from "@/lib/portfolio-content";
+import type { Dialogue } from "@/lib/portfolio/types";
 import { PixelButton } from "./PixelButton";
 
 interface Props {

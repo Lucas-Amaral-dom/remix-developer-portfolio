@@ -1,4 +1,4 @@
-import type { PortfolioData, SkillRow } from "@/lib/portfolio-content";
+import type { PortfolioData, SkillRow } from "@/lib/portfolio/types";
 import type { SceneId } from "@/game/world";
 import { PixelButton } from "@/components/pixel/PixelButton";
 import { ContactForm } from "@/components/pixel/ContactForm";
