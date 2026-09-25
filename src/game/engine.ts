@@ -22,7 +22,7 @@ import workshopSprite from "@/assets/build-workshop.png";
 import cottageSprite from "@/assets/build-cottage.png";
 import trainerOverworldAtlas from "@/assets/trainers-real-overworld-atlas.png";
 import trainerDialogueAtlas from "@/assets/trainers-dialogue-atlas.png";
-import pokemonOverworldAtlas from "@/assets/pokemon-real-overworld-walk-atlas.png";
+import pokemonOverworldAtlas from "@/assets/pokemon-real-overworld-map-atlas.png";
 import interiorHome from "@/assets/interior-home.png";
 import interiorLab from "@/assets/interior-lab.png";
 import interiorShop from "@/assets/interior-shop.png";
