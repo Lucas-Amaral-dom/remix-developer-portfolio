@@ -321,7 +321,7 @@ function World({
               sound.playBadgeUnlock();
               const next = [...prev, s.id];
               // When reaching all 4 badges, trigger grand celebration
-              if (next.length >= 4 && !celebratedRef.current) {
+              if (next.length >= BADGES.length && !celebratedRef.current) {
                 celebratedRef.current = true;
                 setTimeout(() => {
                   setCelebrationOpen(true);
@@ -356,7 +356,7 @@ function World({
         gameDestroyTimerRef.current = null;
       }, 0);
     };
-  }, [handleDialogue, handlePrompt]);
+  }, []);
 
   useEffect(() => {
     gameRef.current?.setTransitionType(transitionType);

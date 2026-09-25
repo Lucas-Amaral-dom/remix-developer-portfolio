@@ -111,7 +111,7 @@ export function BadgeCelebrationModal({
   onOpenProjects,
 }: BadgeCelebrationModalProps) {
   const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
-  const isComplete = badges.length >= 4;
+  const isComplete = badges.length >= BADGES.length;
 
   useEffect(() => {
     if (!isOpen) {
@@ -193,8 +193,8 @@ export function BadgeCelebrationModal({
 
           <h2 className="pixel-font text-base md:text-xl text-primary mt-2">
             {isComplete
-              ? "TODAS AS 4 INSÍGNIAS CONQUISTADAS!"
-              : `PROGRESSO: ${badges.length} DE 4 INSÍGNIAS`}
+              ? "TODAS AS INSÍGNIAS CONQUISTADAS!"
+              : `PROGRESSO: ${badges.length} DE ${BADGES.length} INSÍGNIAS`}
           </h2>
 
           <p className="text-xs md:text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">

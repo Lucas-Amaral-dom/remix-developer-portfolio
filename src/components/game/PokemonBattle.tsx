@@ -1313,7 +1313,18 @@ export function PokemonBattle({
     }
 
     setIsBusy(true);
-    move.pp -= 1;
+
+    const updatedTeamAfterMove = playerTeam.map((pokemon, teamIndex) =>
+      teamIndex === activeTeamIndex
+        ? {
+            ...pokemon,
+            moves: pokemon.moves.map((teamMove, teamMoveIndex) =>
+              teamMoveIndex === moveIndex ? { ...teamMove, pp: teamMove.pp - 1 } : teamMove,
+            ),
+          }
+        : pokemon,
+    );
+    saveTeam(updatedTeamAfterMove);
     setCurrentMenu("main");
 
     // 1. Player attack animation
@@ -1396,15 +1407,26 @@ export function PokemonBattle({
             setPlayerExp(newExp);
 
             // Update active Pokémon in the player's team and persist
-            const updatedTeam = [...playerTeam];
-            if (updatedTeam[activeTeamIndex]) {
-              const member = updatedTeam[activeTeamIndex]!;
-              member.level = newLevel;
-              member.exp = newExp;
+            const updatedTeam = playerTeam.map((member, teamIndex) => {
+              if (teamIndex !== activeTeamIndex) return member;
+
+              const nextMaxHp =
+                didLevelUp ? member.maxHp + (newLevel - prevLevel) * 6 : member.maxHp;
+              const nextHp = didLevelUp ? nextMaxHp : member.hp;
+
+              return {
+                ...member,
+                level: newLevel,
+                exp: newExp,
+                maxHp: nextMaxHp,
+                hp: nextHp,
+              };
+            });
+
+            const updatedActivePokemon = updatedTeam[activeTeamIndex];
+            if (updatedActivePokemon) {
               if (didLevelUp) {
-                member.maxHp += (newLevel - prevLevel) * 6;
-                member.hp = member.maxHp;
-                setPlayerHp(member.maxHp);
+                setPlayerHp(updatedActivePokemon.hp);
               }
               saveTeam(updatedTeam);
             }
@@ -1491,11 +1513,10 @@ export function PokemonBattle({
         setPlayerHp(nextPlayerHp);
 
         // Update active team member HP
-        const updatedTeam = [...playerTeam];
-        if (updatedTeam[activeTeamIndex]) {
-          updatedTeam[activeTeamIndex].hp = nextPlayerHp;
-          saveTeam(updatedTeam);
-        }
+        const updatedTeam = playerTeam.map((member, teamIndex) =>
+          teamIndex === activeTeamIndex ? { ...member, hp: nextPlayerHp } : member,
+        );
+        saveTeam(updatedTeam);
 
         if (nextPlayerHp <= 0) {
           sound.playFaint();
@@ -1538,11 +1559,10 @@ export function PokemonBattle({
     const newHp = Math.min(activePlayerPokemon.maxHp, playerHp + heal);
     setPlayerHp(newHp);
 
-    const updatedTeam = [...playerTeam];
-    if (updatedTeam[activeTeamIndex]) {
-      updatedTeam[activeTeamIndex].hp = newHp;
-      saveTeam(updatedTeam);
-    }
+    const updatedTeam = playerTeam.map((member, teamIndex) =>
+      teamIndex === activeTeamIndex ? { ...member, hp: newHp } : member,
+    );
+    saveTeam(updatedTeam);
 
     sound.playHealJingle();
     setCurrentMenu("main");
