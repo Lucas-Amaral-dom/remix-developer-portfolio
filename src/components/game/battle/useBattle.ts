@@ -292,7 +292,7 @@ export function useBattle({ initialOpponentId, onClose, team }: UseBattleOptions
 
   const handleGenerateRandomOpponent = useCallback(async () => {
     setBattleLog("Convocando um oponente aleatório da PokéAPI...");
-    setPhase("fainted");
+    setPhase("lost");
     try {
       const randomOpponent = await fetchRandomOpponent();
       const updatedOpponents = [
