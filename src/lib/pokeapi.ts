@@ -1,5 +1,44 @@
 import type { Move, Opponent, PlayerPokemon } from "@/lib/battle/types";
 
+const pokemonCache = new Map<string, PlayerPokemon>();
+
+function isAbortError(error: unknown): boolean {
+  return error instanceof DOMException && error.name === "AbortError";
+}
+
+async function wait(ms: number): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchWithRetry(url: string): Promise<Response | null> {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(8000),
+      });
+
+      if (response.ok || (response.status < 500 && response.status !== 429)) {
+        return response;
+      }
+
+      if (attempt === 0) {
+        await wait(500);
+      }
+    } catch (error) {
+      if (isAbortError(error)) {
+        return null;
+      }
+      if (attempt === 0) {
+        await wait(500);
+        continue;
+      }
+      return null;
+    }
+  }
+
+  return null;
+}
+
 const TYPE_TRANSLATIONS: Record<string, string> = {
   normal: "Normal",
   fire: "Fogo",
@@ -579,23 +618,46 @@ export const POPULAR_POKEMON_SUGGESTIONS = [
 export async function fetchPokemonFromApi(
   nameOrId: string | number,
 ): Promise<PlayerPokemon | null> {
+  const cleanQuery = String(nameOrId).toLowerCase().trim().replace(/\s+/g, "-");
+  if (!cleanQuery) return null;
+
+  const cached = pokemonCache.get(cleanQuery);
+  if (cached) return cached;
+
   try {
-    const cleanQuery = String(nameOrId).toLowerCase().trim().replace(/\s+/g, "-");
-    if (!cleanQuery) return null;
+    const res = await fetchWithRetry(
+      `https://pokeapi.co/api/v2/pokemon/${cleanQuery}`,
+    );
+    if (!res) return null;
 
-    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${cleanQuery}`);
-    if (!res.ok) return null;
+    const data: {
+      id: number;
+      name: string;
+      types: Array<{ type: { name: string } }>;
+      stats: Array<{ stat: { name: string }; base_stat: number }>;
+      sprites?: {
+        other?: {
+          showdown?: {
+            front_default?: string | null;
+            back_default?: string | null;
+          };
+          "official-artwork"?: {
+            front_default?: string | null;
+          };
+        };
+        front_default?: string | null;
+        back_default?: string | null;
+      };
+    } = await res.json();
 
-    const data = await res.json();
     const types: string[] = data.types.map(
-      (t: { type: { name: string } }) => TYPE_TRANSLATIONS[t.type.name] || t.type.name,
+      (t) => TYPE_TRANSLATIONS[t.type.name] || t.type.name,
     );
 
     const baseHp =
-      data.stats.find((s: { stat: { name: string } }) => s.stat.name === "hp")?.base_stat ?? 60;
+      data.stats.find((s) => s.stat.name === "hp")?.base_stat ?? 60;
     const calculatedHp = Math.max(50, Math.round(baseHp * 1.4 + 20));
 
-    // Choose best animated showdown sprites
     const showdownFront = data.sprites?.other?.showdown?.front_default;
     const officialArt = data.sprites?.other?.["official-artwork"]?.front_default;
     const defaultFront = data.sprites?.front_default;
@@ -611,7 +673,7 @@ export async function fetchPokemonFromApi(
 
     const formattedName = data.name.charAt(0).toUpperCase() + data.name.slice(1);
 
-    return {
+    const pokemon: PlayerPokemon = {
       id: `poke-${data.id}-${Date.now().toString(36)}`,
       name: formattedName,
       level: 25,
@@ -624,8 +686,15 @@ export async function fetchPokemonFromApi(
       type: types.join(" / "),
       moves: generateMovesForTypes(types),
     };
-  } catch (err) {
-    console.error("Erro ao buscar Pokémon na PokéAPI:", err);
+
+    pokemonCache.set(cleanQuery, pokemon);
+    return pokemon;
+  } catch (error) {
+    if (isAbortError(error)) {
+      return null;
+    }
+
+    console.error("Erro ao processar Pokémon da PokéAPI:", error);
     return null;
   }
 }
