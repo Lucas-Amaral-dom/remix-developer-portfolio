@@ -362,23 +362,22 @@ function World({
     gameRef.current?.setTransitionType(transitionType);
   }, [transitionType]);
 
+  const isPaused =
+    dialogueId !== null ||
+    screen !== null ||
+    celebrationOpen ||
+    battleOpponent !== null ||
+    battleTransitionTarget !== null ||
+    healingOverlay.isOpen;
+
   useEffect(() => {
-    gameRef.current?.setPaused(
-      dialogueId !== null ||
-        screen !== null ||
-        celebrationOpen ||
-        battleOpponent !== null ||
-        battleTransitionTarget !== null ||
-        healingOverlay.isOpen,
-    );
-  }, [
-    dialogueId,
-    screen,
-    celebrationOpen,
-    battleOpponent,
-    battleTransitionTarget,
-    healingOverlay.isOpen,
-  ]);
+    gameRef.current?.setPaused(isPaused);
+    if (isPaused) {
+      sound.suspend();
+    } else {
+      sound.resume();
+    }
+  }, [isPaused]);
 
   const toggleSound = () => {
     const next = sound.toggle();
