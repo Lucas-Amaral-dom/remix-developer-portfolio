@@ -46,4 +46,4 @@ export interface Opponent {
   team?: OpponentMember[];
 }
 
-export interface BattleOpponent extends Opponent {}
+export type BattleOpponent = Opponent;
