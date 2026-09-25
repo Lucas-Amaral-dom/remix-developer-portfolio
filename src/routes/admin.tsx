@@ -349,6 +349,8 @@ function ProjectsTab({ projects, onSaved }: { projects: ProjectRow[]; onSaved: (
         title: "Novo projeto",
         description: "O que ele faz e qual problema resolve.",
         tags: [],
+        technologies: [],
+        image_url: null,
         sort_order: rows.length,
       })
       .select()
@@ -405,6 +407,32 @@ function ProjectsTab({ projects, onSaved }: { projects: ProjectRow[]; onSaved: (
                     .filter(Boolean),
                 })
               }
+            />
+          </label>
+          <label className="sm:col-span-2">
+            <span className={label}>Tecnologias (separadas por vírgula)</span>
+            <input
+              className={field}
+              placeholder="React, Java, MySQL, Git..."
+              value={r.technologies.join(", ")}
+              onChange={(e) =>
+                update(r.id, {
+                  technologies: e.target.value
+                    .split(",")
+                    .map((t) => t.trim())
+                    .filter(Boolean),
+                })
+              }
+            />
+          </label>
+          <label className="sm:col-span-2">
+            <span className={label}>Imagem / screenshot do projeto (URL https)</span>
+            <input
+              className={field}
+              type="url"
+              placeholder="https://.../screenshot.png"
+              value={r.image_url ?? ""}
+              onChange={(e) => update(r.id, { image_url: e.target.value || null })}
             />
           </label>
           <label>

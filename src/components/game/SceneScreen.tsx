@@ -4,6 +4,8 @@ import { PixelButton } from "@/components/pixel/PixelButton";
 import { ContactForm } from "@/components/pixel/ContactForm";
 import { CODING_TOOLS } from "@/components/pixel/TechToolIcons";
 import { sound } from "@/lib/sound";
+import { GithubTechBadge, GithubTechStack } from "@/components/pixel/GithubTechStack";
+import { GITHUB_PROFILE_TECHS, PROJECT_TECHNOLOGIES } from "@/lib/github-profile-data";
 
 const stars = (level: number) => "★".repeat(Math.max(0, Math.min(5, level))).padEnd(5, "☆");
 
@@ -34,8 +36,8 @@ export function SceneScreen({
   const t = (k: string) => c[k] ?? "";
 
   return (
-    <div className="bg-background/85 absolute inset-0 z-40 flex items-start justify-center overflow-y-auto p-3 backdrop-blur-sm">
-      <div className="bg-card text-card-foreground pixel-frame w-full max-w-2xl space-y-5 p-5">
+    <div className="bg-background/85 absolute inset-0 z-40 flex items-start justify-center overflow-y-auto p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-sm">
+      <div className="bg-card text-card-foreground pixel-frame w-full max-w-3xl space-y-5 p-4 sm:p-5">
         <div className="flex items-center justify-between gap-3">
           <h2 className="pixel-font text-primary text-[11px]">{TITLES[scene]}</h2>
           <PixelButton variant="ghost" onClick={onClose}>
@@ -156,6 +158,15 @@ function AboutSection({ data, t }: { data: PortfolioData; t: T }) {
 
       {t("aboutHobby") && <Block title="Fora do código">{t("aboutHobby")}</Block>}
 
+      <section className="pixel-frame-sm bg-background/20 p-3 sm:p-4">
+        <Block title="Apresentação do GitHub">
+          Desenvolvedor fullstack em ascensão, estudante de Desenvolvimento de Sistemas no SENAI Criciúma, com foco em back-end e desenvolvimento Web.
+        </Block>
+        <div className="mt-3">
+          <GithubTechStack compact />
+        </div>
+      </section>
+
       <section className="space-y-3">
         <div>
           <h3 className="pixel-font text-secondary text-[9px] uppercase">Tecnologias no meu kit</h3>
@@ -201,7 +212,7 @@ function AboutSection({ data, t }: { data: PortfolioData; t: T }) {
       </div>
 
       <Block title="Resumo rápido">
-        {data.skills.length} áreas de habilidade cadastradas · {data.projects.length} projetos.
+        {data.skills.length} áreas de habilidade cadastradas · {data.projects.length} projetos em destaque · {GITHUB_PROFILE_TECHS.length} tecnologias do README.
       </Block>
     </div>
   );
@@ -226,6 +237,8 @@ function SkillsSection({ data, t }: { data: PortfolioData; t: T }) {
   return (
     <div className="space-y-5">
       {t("skillsIntro") && <Block title="Visão geral">{t("skillsIntro")}</Block>}
+      {t("githubStackIntro") && <Block title="Stack do meu GitHub">{t("githubStackIntro")}</Block>}
+      <GithubTechStack />
 
       <section className="pixel-frame-sm bg-secondary/10 p-3">
         <p className="pixel-font text-[9px] text-primary uppercase">Tech Lab</p>
@@ -397,7 +410,10 @@ function ProjectsSection({ data, t }: { data: PortfolioData; t: T }) {
             ["Back-end", safeUrl(p.back_url)],
             ["Demo", safeUrl(p.demo_url)],
           ].filter(([, href]) => href) as [string, string][];
-          const preview = projectPreviewUrl(p);
+          const preview = safeUrl(p.image_url) || projectPreviewUrl(p);
+          const technologies = p.technologies?.length
+            ? p.technologies
+            : PROJECT_TECHNOLOGIES[p.title] ?? p.tags;
 
           return (
             <article
@@ -440,6 +456,22 @@ function ProjectsSection({ data, t }: { data: PortfolioData; t: T }) {
 
                 <p className="text-sm leading-relaxed whitespace-pre-line">{p.description}</p>
 
+                {technologies.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5" aria-label={`Tecnologias de ${p.title}`}>
+                    {technologies.map((tech) => {
+                      const badge = <GithubTechBadge key={tech} name={tech} compact />;
+                      return badge ?? (
+                        <span
+                          key={tech}
+                          className="pixel-font border border-border/80 bg-background/40 px-2 py-1 text-[7px] uppercase text-muted-foreground"
+                        >
+                          {tech}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+
                 {p.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1.5">
                     {p.tags.map((tag) => (
@@ -451,7 +483,7 @@ function ProjectsSection({ data, t }: { data: PortfolioData; t: T }) {
                 )}
 
                 {links.length > 0 && (
-                  <div className="flex flex-wrap gap-2 pt-1">
+                  <div className="mt-auto flex flex-wrap gap-2 pt-1">
                     {links.map(([labelText, href]) => (
                       <a
                         key={labelText}

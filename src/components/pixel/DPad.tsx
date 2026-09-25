@@ -19,7 +19,7 @@ export function DPad({ onDir, onAction, actionLabel }: Props) {
       onPointerUp={() => onDir(null)}
       onPointerLeave={() => onDir(null)}
       onPointerCancel={() => onDir(null)}
-      className="pixel-press bg-card text-card-foreground pixel-font flex h-11 w-11 items-center justify-center text-[11px] select-none"
+      className="pixel-press bg-card text-card-foreground pixel-font flex h-12 w-12 items-center justify-center text-[11px] select-none touch-none"
     >
       {glyph}
     </button>
@@ -42,7 +42,7 @@ export function DPad({ onDir, onAction, actionLabel }: Props) {
       <button
         type="button"
         onClick={onAction}
-        className="pixel-press bg-primary text-primary-foreground pixel-font flex h-16 w-16 items-center justify-center rounded-full text-[11px] select-none"
+        className="pixel-press bg-primary text-primary-foreground pixel-font flex h-16 w-16 items-center justify-center rounded-full text-[11px] select-none touch-none"
       >
         {actionLabel}
       </button>

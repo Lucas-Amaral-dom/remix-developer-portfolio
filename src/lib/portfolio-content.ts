@@ -1,4 +1,5 @@
 import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
+import { PROJECT_TECHNOLOGIES } from "@/lib/github-profile-data";
 
 export interface SkillRow {
   id: string;
@@ -18,6 +19,9 @@ export interface ProjectRow {
   back_url: string | null;
   demo_url: string | null;
   sort_order: number;
+  /** Visual metadata stored in Supabase after migration. */
+  technologies: string[];
+  image_url: string | null;
 }
 
 export interface PortfolioData {
@@ -41,6 +45,7 @@ export const CONTENT_FIELDS: { key: string; label: string; multiline?: boolean }
   { key: "aboutSeeking", label: "Sobre — o que busco", multiline: true },
   { key: "aboutHobby", label: "Sobre — fora do código", multiline: true },
   { key: "skillsIntro", label: "Intro das skills", multiline: true },
+  { key: "githubStackIntro", label: "Intro da stack do GitHub", multiline: true },
   { key: "projectsIntro", label: "Intro dos projetos", multiline: true },
   { key: "contactIntro", label: "Intro do contato", multiline: true },
   { key: "contactEmail", label: "E-mail" },
@@ -56,21 +61,22 @@ export const DEFAULT_PORTFOLIO_DATA: PortfolioData = {
     heroSub: "Um portfólio em pixel art. Explore a cidade e entre nas construções.",
     homeClass: "Dev Full Stack Jr.",
     homeOrigin: "Criciúma, SC",
-    homeFocus: "Web, apps e banco de dados",
-    homeMode: "Aprender construindo",
+    homeFocus: "Back-end e desenvolvimento Web",
+    homeMode: "Aprender, construir e evoluir",
     aboutIntro:
-      "Olá! Sou Lucas, estudante de Desenvolvimento de Sistemas. Gosto de resolver problemas com tecnologia e criar interfaces bem cuidadas.",
+      "Olá! Sou Lucas, desenvolvedor fullstack em ascensão e estudante de Desenvolvimento de Sistemas no SENAI Criciúma. Gosto de resolver problemas, encarar desafios lógicos e transformar ideias em código.",
     aboutStory:
-      "Escolhi Desenvolvimento de Sistemas porque gosto de entender como as coisas funcionam por dentro. Hoje estudo no SENAI Criciúma e construo projetos web de ponta a ponta: interface, API e banco de dados.",
+      "Estou construindo minha base em programação, desenvolvimento Web, APIs, SQL e boas práticas de código. Nos meus projetos públicos, venho trabalhando com front-end, back-end, banco de dados e integração de sistemas.",
     aboutSeeking:
-      "Estou em busca de estágio ou primeira oportunidade como desenvolvedor, presencial em Criciúma ou remoto.",
+      "Meu objetivo é concluir o curso, me aprimorar continuamente e alavancar minha carreira na tecnologia, buscando estágio ou primeira oportunidade como desenvolvedor.",
     aboutHobby:
       "Fora do código: jogos, pixel art e aprender coisas novas construindo pequenos projetos.",
-    skillsIntro: "Competências do curso Técnico em Desenvolvimento de Sistemas — SENAI Criciúma.",
+    skillsIntro: "Competências e tecnologias apresentadas no meu GitHub, separando base de programação, web, backend, dados e ferramentas.",
+    githubStackIntro: "Tecnologias e ferramentas que aparecem no meu README do GitHub e que fazem parte da minha jornada de desenvolvimento.",
     projectsIntro: "Projetos do meu GitHub mostrando front-end, back-end e banco de dados.",
     contactIntro: "Vamos conversar sobre estágio, projetos ou colaboração?",
     contactEmail: "lucasamaraldefarias144@gmail.com",
-    contactLinkedin: "https://www.linkedin.com/",
+    contactLinkedin: "",
     contactGithub: "https://github.com/Lucas-Amaral-dom",
     contactCity: "Criciúma, Santa Catarina",
   },
@@ -122,6 +128,8 @@ export const DEFAULT_PORTFOLIO_DATA: PortfolioData = {
       back_url: "https://github.com/Lucas-Amaral-dom/biblioteca-back-",
       demo_url: null,
       sort_order: 1,
+      technologies: ["JavaScript", "React", "HTML5", "CSS3", "Java", "MySQL"],
+      image_url: null,
     },
     {
       id: "proj-2",
@@ -133,6 +141,8 @@ export const DEFAULT_PORTFOLIO_DATA: PortfolioData = {
       back_url: "https://github.com/Lucas-Amaral-dom/projeto-guardavidas-Back",
       demo_url: null,
       sort_order: 2,
+      technologies: ["React", "JavaScript", "HTML5", "CSS3", "Java", "MySQL", "Spring Boot", "Tailwind CSS"],
+      image_url: null,
     },
     {
       id: "proj-3",
@@ -144,6 +154,8 @@ export const DEFAULT_PORTFOLIO_DATA: PortfolioData = {
       back_url: null,
       demo_url: null,
       sort_order: 3,
+      technologies: ["React", "TypeScript", "KAPLAY", "Vite", "Supabase", "GitHub"],
+      image_url: null,
     },
   ],
 };
@@ -175,6 +187,18 @@ export const portfolioQuery = {
       const content: Record<string, string> = {};
       for (const row of contentRes.data ?? []) content[row.key] = row.value;
 
+      const rawProjects = projectsRes.data?.length
+        ? projectsRes.data
+        : DEFAULT_PORTFOLIO_DATA.projects;
+      const projects = (rawProjects as Array<Partial<ProjectRow> & { id: string }>).map((project) => ({
+        ...project,
+        technologies:
+          Array.isArray(project.technologies) && project.technologies.length > 0
+            ? project.technologies
+            : PROJECT_TECHNOLOGIES[project.title ?? ""] ?? project.tags ?? [],
+        image_url: project.image_url ?? null,
+      })) as ProjectRow[];
+
       return {
         content:
           Object.keys(content).length > 0
@@ -183,9 +207,7 @@ export const portfolioQuery = {
         skills: (skillsRes.data?.length
           ? skillsRes.data
           : DEFAULT_PORTFOLIO_DATA.skills) as SkillRow[],
-        projects: (projectsRes.data?.length
-          ? projectsRes.data
-          : DEFAULT_PORTFOLIO_DATA.projects) as ProjectRow[],
+        projects,
       };
     } catch (err) {
       console.warn(

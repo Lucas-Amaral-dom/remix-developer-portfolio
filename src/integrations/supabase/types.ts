@@ -40,8 +40,10 @@ export type Database = {
           description: string;
           front_url: string | null;
           id: string;
+          image_url: string | null;
           sort_order: number;
           tags: string[];
+          technologies: string[];
           title: string;
           updated_at: string;
         };
@@ -52,8 +54,10 @@ export type Database = {
           description?: string;
           front_url?: string | null;
           id?: string;
+          image_url?: string | null;
           sort_order?: number;
           tags?: string[];
+          technologies?: string[];
           title: string;
           updated_at?: string;
         };
@@ -64,8 +68,10 @@ export type Database = {
           description?: string;
           front_url?: string | null;
           id?: string;
+          image_url?: string | null;
           sort_order?: number;
           tags?: string[];
+          technologies?: string[];
           title?: string;
           updated_at?: string;
         };

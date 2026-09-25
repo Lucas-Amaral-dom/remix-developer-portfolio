@@ -404,7 +404,7 @@ function World({
       <header className="border-border flex flex-wrap items-center justify-between gap-3 border-b-4 px-3 py-2 bg-card/80 backdrop-blur-sm">
         <h1 className="pixel-font text-[10px] text-foreground">{scene?.title ?? "Desert Oasis"}</h1>
 
-        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto">
+        <div className="flex min-w-0 items-center gap-1.5 overflow-x-auto pb-1 sm:gap-2">
           {/* Quick travel: click a destination to teleport directly to its building. */}
           {([
             ["home", "🏠", "Casa", "Sobre mim"],
@@ -432,7 +432,7 @@ function World({
           <button
             type="button"
             onClick={() => setBattleOpponent("machop")}
-            className="px-2.5 py-1 pixel-frame-sm text-[9px] hover:bg-rose-500/20 text-rose-300 border border-rose-500/40 transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="px-2.5 py-1 pixel-frame-sm text-[9px] hover:bg-rose-500/20 text-rose-300 border border-rose-500/40 transition-colors flex items-center gap-1.5 cursor-pointer shrink-0"
             title="Abrir o Sistema de Batalha Pokémon estilo GBA"
           >
             <span className="text-rose-400">⚔️</span>
@@ -443,7 +443,7 @@ function World({
           <button
             type="button"
             onClick={cycleTransition}
-            className="px-2.5 py-1 pixel-frame-sm text-[9px] hover:bg-secondary/20 transition-colors flex items-center gap-1.5 text-foreground cursor-pointer"
+            className="hidden sm:flex px-2.5 py-1 pixel-frame-sm text-[9px] hover:bg-secondary/20 transition-colors items-center gap-1.5 text-foreground cursor-pointer shrink-0"
             title="Alternar estilo de transição ao entrar/sair de prédios Pokémon (Íris, Veneziana, Diamantes, Fade)"
           >
             <span className="text-amber-400">{activeTransition.icon}</span>
@@ -454,7 +454,7 @@ function World({
           <button
             type="button"
             onClick={toggleSound}
-            className="px-2 py-1 pixel-frame-sm text-[10px] hover:bg-secondary/20 transition-colors"
+            className="px-2 py-1 pixel-frame-sm text-[10px] hover:bg-secondary/20 transition-colors shrink-0"
             title={soundOn ? "Desativar Som Chiptune" : "Ativar Som Chiptune"}
           >
             {soundOn ? "🔊 Som: ON" : "🔇 Som: OFF"}
@@ -464,7 +464,7 @@ function World({
           <button
             type="button"
             onClick={() => setCelebrationOpen(true)}
-            className="flex items-center gap-2 px-2.5 py-1 pixel-frame-sm hover:bg-secondary/20 transition-colors group cursor-pointer"
+            className="hidden xs:flex items-center gap-2 px-2.5 py-1 pixel-frame-sm hover:bg-secondary/20 transition-colors group cursor-pointer shrink-0"
             title="Clique para abrir o Estojo de Insígnias"
           >
             <span className="pixel-font text-secondary text-[9px] group-hover:text-amber-400">
@@ -626,7 +626,7 @@ function World({
         />
       </div>
 
-      <footer className="border-border flex items-center justify-between gap-4 border-t-4 px-3 py-3 bg-card/90">
+      <footer className="border-border flex flex-wrap items-center justify-between gap-3 border-t-4 px-3 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] bg-card/90">
         <DPad
           onDir={(d: Dir | null) => gameRef.current?.setDir(d)}
           onAction={() => (dialogue ? undefined : gameRef.current?.interact())}
