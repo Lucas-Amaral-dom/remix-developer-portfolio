@@ -1,0 +1,148 @@
+import pikachuImg from "@/assets/pokemon/pikachu.png";
+import charmanderImg from "@/assets/pokemon/charmander.png";
+import bulbasaurImg from "@/assets/pokemon/bulbasaur.png";
+import type { PlayerPokemon } from "./types";
+
+export const INITIAL_PLAYER_TEAM: PlayerPokemon[] = [
+  {
+    id: "starter-pikachu",
+    name: "Pikachu",
+    level: 25,
+    hp: 100,
+    maxHp: 100,
+    exp: 42,
+    maxExp: 100,
+    sprite: pikachuImg,
+    backSprite:
+      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/back/25.gif",
+    type: "Elétrico",
+    moves: [
+      {
+        name: "Choque do Trovão",
+        type: "Elétrico",
+        power: 24,
+        pp: 20,
+        maxPp: 20,
+        description: "Dispara descarga elétrica de alta voltagem.",
+      },
+      {
+        name: "Ataque Rápido",
+        type: "Normal",
+        power: 16,
+        pp: 30,
+        maxPp: 30,
+        description: "Ataca em velocidade ofuscante com alta prioridade.",
+      },
+      {
+        name: "Cauda de Ferro",
+        type: "Aço",
+        power: 28,
+        pp: 15,
+        maxPp: 15,
+        description: "Endurece a cauda como aço maciço e desfere um golpe pesado.",
+      },
+      {
+        name: "Investida Trovão",
+        type: "Elétrico",
+        power: 32,
+        pp: 10,
+        maxPp: 10,
+        description: "Envolve o corpo em eletricidade e avança com impacto crítico.",
+      },
+    ],
+  },
+  {
+    id: "starter-charmander",
+    name: "Charmander",
+    level: 24,
+    hp: 95,
+    maxHp: 95,
+    exp: 15,
+    maxExp: 100,
+    sprite: charmanderImg,
+    backSprite:
+      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/back/4.gif",
+    type: "Fogo",
+    moves: [
+      {
+        name: "Brasa",
+        type: "Fogo",
+        power: 22,
+        pp: 25,
+        maxPp: 25,
+        description: "Lança brasas crepitantes no adversário.",
+      },
+      {
+        name: "Lança-Chamas",
+        type: "Fogo",
+        power: 34,
+        pp: 15,
+        maxPp: 15,
+        description: "Dispara uma poderosa e ardente coluna de fogo.",
+      },
+      {
+        name: "Garra de Metal",
+        type: "Aço",
+        power: 24,
+        pp: 20,
+        maxPp: 20,
+        description: "Ataca com garras duras como aço.",
+      },
+      {
+        name: "Arranhão Feroz",
+        type: "Normal",
+        power: 18,
+        pp: 30,
+        maxPp: 30,
+        description: "Rasga com unhas afiadas com precisão.",
+      },
+    ],
+  },
+  {
+    id: "starter-bulbasaur",
+    name: "Bulbasaur",
+    level: 23,
+    hp: 105,
+    maxHp: 105,
+    exp: 28,
+    maxExp: 100,
+    sprite: bulbasaurImg,
+    backSprite:
+      "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/back/1.gif",
+    type: "Planta / Veneno",
+    moves: [
+      {
+        name: "Chicote de Vinha",
+        type: "Planta",
+        power: 22,
+        pp: 25,
+        maxPp: 25,
+        description: "Chicoteia com ramos vigorosos e elásticos.",
+      },
+      {
+        name: "Bomba de Lodo",
+        type: "Veneno",
+        power: 32,
+        pp: 15,
+        maxPp: 15,
+        description: "Dispara uma onda ácida pesada de lodo corrosivo.",
+      },
+      {
+        name: "Folha Navalha",
+        type: "Planta",
+        power: 26,
+        pp: 20,
+        maxPp: 20,
+        description: "Lança folhas afiadas com corte certeiro.",
+      },
+      {
+        name: "Gás Tóxico",
+        type: "Veneno",
+        power: 24,
+        pp: 20,
+        maxPp: 20,
+        description: "Expele vapores pestilentos que asfixiam o adversário.",
+      },
+    ],
+  },
+];
