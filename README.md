@@ -1,36 +1,72 @@
-# Developer's Pokémon Journey
+# Lucas Amaral — Interactive Developer Portfolio
 
-https://github.com/Lucas-Amaral-dom/portfolio analise este meu portfolio que estava desenvolvendo com uma ia e me ajude a melhorar ele de sujestoes de melhorias e outros quero que ele seja como um jogo 2d de pokemon onde ao entrar nas construcoes que no momento sao png apareça informacoes minhas de desenvolvedor acredito que elas ja estejam ai porem quero poder mudar caso esteja faltando algo
+> **Portfolio Quest · Desert Oasis** — portfólio web apresentado como uma experiência 2D explorável em pixel art.
 
-This project was built with [Lovable](https://lovable.dev).
+O visitante pode caminhar pela cidade, conversar com NPCs, entrar em construções, conhecer tecnologias e projetos e iniciar batalhas demonstrativas.
 
-## Build with Lovable
+## 🎮 O que a V9 demonstra
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/350e716a-9715-421d-94a7-406290be35c7).
+- Overworld 2D com KAPLAY, colisão, câmera e movimentação responsiva.
+- Sprites de treinadores de overworld preservados e vinculados aos diálogos.
+- Retrato de batalha local na interface de diálogo, mantendo a identidade do treinador.
+- Portas e transições entre cidade e interiores.
+- Lago, praça, áreas de treino e pontos de interesse.
+- Interiores com layouts diferentes para as áreas do portfólio.
+- Batalha Pokémon demonstrativa.
+- Interface adaptada a desktop e telas menores.
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+## ⚡ Refinamentos de desempenho
 
-## Development
+A V9 mantém a arquitetura existente e concentra o trabalho de cada frame no que precisa de resposta imediata:
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+- IA de NPCs e Pokémon atualizada em frequência controlada;
+- depth sorting desacoplado da atualização visual de cada frame;
+- descoberta de prompts/interações limitada a uma frequência adequada;
+- animações decorativas agrupadas em um loop visual compartilhado;
+- remoção de uma segunda instância visual dos NPCs que podia causar duplicação/halo;
+- menos treinadores redundantes na cidade;
+- transições de cena mantendo o estado centralizado.
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+## 🛠️ Stack
+
+- React 19
+- TypeScript
+- Vite
+- KAPLAY
+- Tailwind CSS
+- Supabase (opcional)
+- PokeAPI / dados de Pokémon
+
+## 🚀 Desenvolvimento local
+
+```bash
+npm install
 npm run dev
 ```
 
-## Portfolio data aligned with GitHub
+Validação:
 
-The portfolio now mirrors the technology symbols used in the GitHub profile README:
-Java, JavaScript, React, HTML5, CSS3, MySQL, Git and GitHub.
+```bash
+npm run lint
+npm run build
+```
 
-Featured projects were aligned with the public repositories:
-- Biblioteca: front-end `biblioteca-front` + back-end `biblioteca-back-`
-- Projeto Guarda-vidas: `projeto_guardavidas` + `projeto-guardavidas-Back`
-- Portfólio RPG: `portfolio`
+## 📁 Estrutura
 
-The admin panel can store a project screenshot (`image_url`) and a comma-separated technology list (`technologies`) after applying the Supabase migration in `supabase/migrations/20260924210000_add_project_showcase_metadata.sql`.
+- `src/game/` — mundo, engine e transições.
+- `src/components/game/` — shell, batalha e telas do jogo.
+- `src/components/pixel/` — diálogos e interface pixel.
+- `src/assets/` — construções, Pokémon, treinadores e imagens dos projetos.
+- `src/lib/` — dados de portfólio, batalha e integrações.
+
+## 📌 Projetos
+
+A experiência apresenta projetos como Biblioteca, Guarda-vidas e o próprio Portfólio RPG, permitindo transformar cada construção em uma área de apresentação técnica.
+
+## 🧩 Créditos
+
+Consulte [`CREDITS.md`](./CREDITS.md) antes de reutilizar assets.
+
+## 🎤 Como apresentar
+
+Uma demonstração curta pode seguir: **cidade → NPC → diálogo/retrato → porta → interior → Arena de Projetos → batalha**.

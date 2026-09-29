@@ -21,7 +21,6 @@ import innSprite from "@/assets/build-inn.png";
 import workshopSprite from "@/assets/build-workshop.png";
 import cottageSprite from "@/assets/build-cottage.png";
 import trainerOverworldAtlas from "@/assets/trainers-real-overworld-atlas.png";
-import trainerDialogueAtlas from "@/assets/trainers-dialogue-atlas.png";
 import pokemonOverworldAtlas from "@/assets/pokemon-real-overworld-walk-atlas.png";
 import interiorHome from "@/assets/interior-home.png";
 import interiorLab from "@/assets/interior-lab.png";
@@ -233,6 +232,16 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
    k.loadSprite("terrain-sand", desertSandTile);
    k.loadSprite("terrain-brick", desertBrickTile);
 
+  const visualAnimations: Array<() => void> = [];
+  let visualAnimationTick = 0;
+  const registerVisualAnimation = (fn: () => void) => visualAnimations.push(fn);
+  registerVisualAnimation(() => {
+    visualAnimationTick += k.dt();
+    if (visualAnimationTick < 1 / 30) return;
+    visualAnimationTick = 0;
+    for (const update of visualAnimations) update();
+  });
+
   const state = {
     paused: false,
     transitioning: false,
@@ -359,7 +368,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           k.opacity(0.85),
           k.z(3),
         ]) as unknown as { pos: { y: number }; opacity: number };
-        k.onUpdate(() => {
+        registerVisualAnimation(() => {
           setPosY(foamN, py + Math.sin(k.time() * 2.5 + col * 0.8) * 1.5);
           foamN.opacity = 0.5 + Math.sin(k.time() * 2.5 + col * 0.8) * 0.35;
         });
@@ -372,7 +381,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           k.opacity(0.85),
           k.z(3),
         ]) as unknown as { pos: { y: number }; opacity: number };
-        k.onUpdate(() => {
+        registerVisualAnimation(() => {
           setPosY(foamS, py + TILE - 4 - Math.sin(k.time() * 2.5 + col * 0.8) * 1.5);
           foamS.opacity = 0.5 + Math.sin(k.time() * 2.5 + col * 0.8) * 0.35;
         });
@@ -385,7 +394,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           k.opacity(0.85),
           k.z(3),
         ]) as unknown as { pos: { x: number }; opacity: number };
-        k.onUpdate(() => {
+        registerVisualAnimation(() => {
           setPosX(foamW, px + Math.sin(k.time() * 2.5 + row * 0.8) * 1.5);
           foamW.opacity = 0.5 + Math.sin(k.time() * 2.5 + row * 0.8) * 0.35;
         });
@@ -398,7 +407,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           k.opacity(0.85),
           k.z(3),
         ]) as unknown as { pos: { x: number }; opacity: number };
-        k.onUpdate(() => {
+        registerVisualAnimation(() => {
           setPosX(foamE, px + TILE - 4 - Math.sin(k.time() * 2.5 + row * 0.8) * 1.5);
           foamE.opacity = 0.5 + Math.sin(k.time() * 2.5 + row * 0.8) * 0.35;
         });
@@ -421,7 +430,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       ]) as unknown as { pos: { x: number } };
       const ox = px + 4;
       const oxB = px + 16;
-      k.onUpdate(() => {
+      registerVisualAnimation(() => {
         setPosX(waveA, ox + Math.sin(k.time() * 2.0 + col * 1.5) * 3);
         setPosX(waveB, oxB + Math.cos(k.time() * 1.7 + row * 1.5) * 3);
       });
@@ -435,7 +444,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         k.opacity(0.4),
         k.z(2),
       ]) as unknown as { scale: { x: number; y: number }; opacity: number };
-      k.onUpdate(() => {
+      registerVisualAnimation(() => {
         const ph = (k.time() * 0.7 + (col * 0.37 + row * 0.73)) % 1;
         setScaleX(ripple, 0.8 + ph * 3.2);
         setScaleY(ripple, 0.4 + ph * 1.6);
@@ -452,7 +461,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         k.opacity(0.7),
         k.z(3),
       ]) as unknown as { opacity: number };
-      k.onUpdate(() => {
+      registerVisualAnimation(() => {
         const gCycle = Math.sin(k.time() * 3.8 + col * 3 + row * 5);
         glint.opacity = gCycle > 0.6 ? (gCycle - 0.6) * 2.5 : 0;
       });
@@ -483,7 +492,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         k.opacity(0.8),
         k.z(3),
       ]) as unknown as { pos: { y: number } };
-      k.onUpdate(() => {
+      registerVisualAnimation(() => {
         const t = k.time() * 90;
         setPosY(s1, py + (t % 12) - 6);
         setPosY(s2, py + ((t + 6) % 12) - 6);
@@ -498,7 +507,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         k.opacity(0.85),
         k.z(4),
       ]) as unknown as { scale: { x: number; y: number }; opacity: number };
-      k.onUpdate(() => {
+      registerVisualAnimation(() => {
         setScaleY(mist, 0.8 + Math.sin(k.time() * 9 + col) * 0.4);
         mist.opacity = 0.65 + Math.sin(k.time() * 8) * 0.25;
       });
@@ -659,7 +668,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       ]) as unknown as { pos: { y: number } };
       const fy = py + 11;
       const cy = py + 14;
-      k.onUpdate(() => {
+      registerVisualAnimation(() => {
         const flicker = Math.sin(k.time() * 9 + col) * 2;
         setPosY(flame, fy + flicker);
         setPosY(core, cy + flicker);
@@ -704,7 +713,6 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
     targetY: number;
     canWander: boolean;
     spr: { frame: number; pos: { x: number; y: number }; opacity: number };
-    battleSpr: { pos: { x: number; y: number }; opacity: number; scale: { x: number; y: number } };
     shadow: { pos: { x: number; y: number } };
     emote: { opacity: number; pos: { x: number; y: number } };
   }
@@ -765,7 +773,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         ]) as unknown as { pos: { y: number; x: number }; scale: { x: number; y: number } };
 
         const baseY = py + (isLarge ? 12 : 15);
-        k.onUpdate(() => {
+        registerVisualAnimation(() => {
           const t = k.time();
           setPosY(spr, baseY + Math.sin(t * 3.2 + col * 0.7) * 1.5);
           // Subtle natural breathing squash & stretch
@@ -807,7 +815,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           k.z(11),
         ]) as unknown as { scale: { x: number; y: number } };
         const dy = py + 16;
-        k.onUpdate(() => {
+        registerVisualAnimation(() => {
           const t = k.time();
           setPosY(duckPos, dy + Math.sin(t * 3.2 + col) * 2);
           setPosX(duckPos, px + 14 + Math.sin(t * 1.5 + col) * 3);
@@ -834,7 +842,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           k.z(13),
         ]) as unknown as { pos: { y: number; x: number }; opacity: number };
         const fy = py + 4;
-        k.onUpdate(() => {
+        registerVisualAnimation(() => {
           const t = k.time();
           setPosY(flame, fy + Math.sin(t * 9) * 2);
           const sparkPhase = (t * 2) % 1;
@@ -867,7 +875,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         ]) as unknown as { pos: { y: number } };
         k.add([k.circle(3), k.pos(px + 16, py + 8), k.color(255, 240, 120), k.z(10)]);
         const bfy = py + 3;
-        k.onUpdate(() => {
+        registerVisualAnimation(() => {
           setPosY(bFlame, bfy + Math.sin(k.time() * 8.5) * 1.5);
         });
         break;
@@ -884,7 +892,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           k.color(240, 252, 255),
           k.z(8),
         ]) as unknown as { scale: { x: number; y: number } };
-        k.onUpdate(() => {
+        registerVisualAnimation(() => {
           setScaleX(jet, 0.8 + Math.sin(k.time() * 6) * 0.3);
           setScaleY(jet, 0.8 + Math.cos(k.time() * 6) * 0.3);
         });
@@ -978,7 +986,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
           k.opacity(0.7),
           k.z(10),
         ]) as unknown as { scale: { x: number; y: number } };
-        k.onUpdate(() => {
+        registerVisualAnimation(() => {
           setScaleX(water, 0.8 + Math.sin(k.time() * 2.8 + item.x) * 0.15);
           setScaleY(water, 0.8 + Math.cos(k.time() * 2.8 + item.y) * 0.1);
         });
@@ -1134,7 +1142,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         k.rect(32, 18),
         k.pos(dx, dy + 16),
         k.color(255, 238, 176),
-        k.opacity(0),
+        k.opacity(1),
         k.z(12),
       ]) as unknown as { opacity: number };
       const doorObj = k.add([
@@ -1360,22 +1368,6 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         k.z(20),
       ]) as unknown as { frame: number; pos: { x: number; y: number }; opacity: number };
 
-      // The portrait is the same local trainer atlas used by the overworld.
-      // Walking uses the 4-frame row; idle/talk uses the first frame of that same variant.
-      const battleSpr = k.add([
-        k.sprite("trainer-chars", { frame: trainerFrame(trainerVariant, face, 0) }),
-        k.pos(px, py),
-        k.anchor("bot"),
-        k.scale(0.92),
-        k.opacity(1),
-        k.z(21),
-      ]) as unknown as {
-        pos: { x: number; y: number };
-        opacity: number;
-        scale: { x: number; y: number };
-        z: number;
-      };
-
       activeNpcs.push({
         item,
         trainerVariant,
@@ -1424,8 +1416,18 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
 
     let cameraX = player.pos.x;
     let cameraY = player.pos.y;
+    let aiTick = 0;
+    let depthTick = 0;
+    let interactionTick = 0;
 
     k.onUpdate(() => {
+      const dt = k.dt();
+      aiTick += dt;
+      depthTick += dt;
+      interactionTick += dt;
+      const runAiStep = aiTick >= 1 / 20;
+      if (runAiStep) aiTick = 0;
+
       // Keep player shadow aligned under feet
       setPosX(playerShadow, player.pos.x);
       setPosY(playerShadow, player.pos.y - 2);
@@ -1434,8 +1436,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       player.z = 20 + Math.floor(player.pos.y / 8);
       for (const npc of activeNpcs) {
         npc.spr.z = 20 + Math.floor(npc.spr.pos.y / 8);
-        npc.battleSpr.z = npc.spr.z + 1;
-      }
+              }
 
       // Doors slide open smoothly when near
       const ptxD = player.pos.x / TILE - 0.5;
@@ -1453,7 +1454,11 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         p.spr.z = 20 + Math.floor(p.spr.pos.y / 8);
 
         if (p.state === "idle") {
-          p.idleTimer -= k.dt();
+          if (!runAiStep) continue;
+          const ptx = Math.floor(player.pos.x / TILE);
+          const pty = Math.floor(player.pos.y / TILE);
+          if (Math.abs(p.curCol - ptx) > 18 || Math.abs(p.curRow - pty) > 14) continue;
+          p.idleTimer -= 1 / 20;
           // Gentle breathing idle
           const t = k.time();
           setScaleY(p.spr, p.baseScale + Math.sin(t * 3.5 + p.curCol) * 0.02);
@@ -1462,12 +1467,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
             p.spr.frame = p.overworldIndex * 4 + dirIndex;
             setScaleX(p.spr, p.facing === "left" ? -1 : 1);
           } else {
-            setScaleX(
-            p.spr,
-            p.overworldIndex !== undefined
-              ? p.facing === "left" ? -1 : 1
-              : (p.facing === "left" ? -1 : 1) * p.baseScale,
-          );
+            setScaleX(p.spr, (p.facing === "left" ? -1 : 1) * p.baseScale);
           }
           p.spr.angle = 0;
 
@@ -1508,7 +1508,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
             }
           }
         } else if (p.state === "walking") {
-          p.walkProgress += k.dt() * 1.5;
+          p.walkProgress += dt * 1.5;
           const prog = Math.min(1, p.walkProgress);
 
           if (p.overworldIndex !== undefined) {
@@ -1545,16 +1545,18 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         if (state.paused || npc.state === "talking") {
           npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing, 0);
           npc.spr.opacity = 0;
-          npc.battleSpr.opacity = 1;
-          continue;
+            continue;
         }
 
         if (npc.state === "idle") {
+          if (!runAiStep) continue;
+          const ptx = Math.floor(player.pos.x / TILE);
+          const pty = Math.floor(player.pos.y / TILE);
+          if (Math.abs(npc.curCol - ptx) > 20 || Math.abs(npc.curRow - pty) > 15) continue;
           // Always maintain clean standing idle pose (frame 0) with zero twitching
           npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing, 0);
           npc.spr.opacity = 0;
-          npc.battleSpr.opacity = 1;
-          setPosX(npc.battleSpr, npc.spr.pos.x);
+            setPosX(npc.battleSpr, npc.spr.pos.x);
           setPosY(npc.battleSpr, npc.spr.pos.y + 1);
           npc.idleTimer -= k.dt();
 
@@ -1638,8 +1640,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
             npc.state = "idle";
             npc.spr.frame = trainerFrame(npc.trainerVariant, npc.facing, 0);
             npc.spr.opacity = 0;
-            npc.battleSpr.opacity = 1;
-            setPosX(npc.battleSpr, curPx);
+                setPosX(npc.battleSpr, curPx);
             setPosY(npc.battleSpr, curPy + 1);
             setPosY(npc.spr, curPy);
             npc.idleTimer = 1.8 + Math.random() * 2.5;
@@ -1720,8 +1721,11 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
         player.frame = trainerFrame(0, player.facing, 0);
       }
 
-      // Check nearest interaction or door
-      const ptx = player.pos.x / TILE - 0.5;
+      // Prompt discovery is throttled; movement and camera remain frame-rate responsive.
+      if (interactionTick >= 0.08) interactionTick = 0;
+      if (interactionTick === 0) {
+        // Check nearest interaction or door
+        const ptx = player.pos.x / TILE - 0.5;
       const pty = player.pos.y / TILE - 1.0;
       let best: { label: string; action: string; run: () => void; dist: number } | null = null;
 
@@ -1824,6 +1828,7 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
       if (promptKey !== state.lastPromptKey) {
         state.lastPromptKey = promptKey;
         cb.onPrompt(best ? { label: best.label, action: best.action } : null);
+      }
       }
 
       // Smooth follow with proper map-boundary clamping.

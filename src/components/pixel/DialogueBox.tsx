@@ -36,14 +36,13 @@ const SPEAKER_VARIANTS: Record<string, number> = {
 
 function TrainerAvatar({ speaker }: { speaker: string }) {
   const variant = SPEAKER_VARIANTS[speaker] ?? 1;
-  // The same 6-variant atlas used by the map: each trainer occupies
-  // one 128×192 sheet. Display that sheet at 50% for a clean 64×96 portrait.
+  // V9 keeps the battle preview tied to the exact overworld variant.
   const x = -variant * 64;
   const y = 0;
   return (
     <div
-      aria-label={speaker}
-      className="h-24 w-16 shrink-0 overflow-hidden rounded-md border-2 border-amber-800/60 bg-gradient-to-b from-amber-950/40 via-amber-900/20 to-black/50 shadow-md"
+      aria-label={`${speaker} — retrato de batalha`}
+      className="h-24 w-20 shrink-0 overflow-hidden rounded-md border-2 border-amber-800/60 bg-gradient-to-b from-amber-950/40 via-amber-900/20 to-black/50 shadow-md"
       style={{
         backgroundImage: 'url("/assets/trainers-real-overworld-atlas.png")',
         backgroundRepeat: "no-repeat",
