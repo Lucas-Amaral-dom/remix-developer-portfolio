@@ -46,8 +46,21 @@ export function DPad({ onDir, onAction, actionLabel }: Props) {
       </div>
       <button
         type="button"
-        onClick={onAction}
-        className="pixel-press bg-primary text-primary-foreground pixel-font flex h-16 w-16 items-center justify-center rounded-full text-[11px] select-none touch-none"
+        aria-label={actionLabel}
+        onPointerDown={(e) => {
+          e.preventDefault();
+          e.currentTarget.setPointerCapture(e.pointerId);
+          onAction();
+        }}
+        onPointerUp={(e) => {
+          e.preventDefault();
+          if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+        }}
+        onPointerCancel={(e) => {
+          if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+        }}
+        onContextMenu={(e) => e.preventDefault()}
+        className="pixel-press flex h-[4.5rem] w-[4.5rem] select-none touch-none touch-manipulation items-center justify-center rounded-full border border-white/15 bg-primary/30 text-primary-foreground shadow-[0_4px_18px_rgba(0,0,0,0.22)] backdrop-blur-md active:bg-primary/50 pixel-font text-[12px]"
       >
         {actionLabel}
       </button>
