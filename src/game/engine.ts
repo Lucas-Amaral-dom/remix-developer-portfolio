@@ -1117,6 +1117,16 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
     const rows = scene.grid;
     const mapW = rows[0]!.length;
     const mapH = rows.length;
+    const roamingBlockedCells = new Uint8Array(mapW * mapH);
+    for (let row = 0; row < mapH; row++) {
+      for (let col = 0; col < mapW; col++) {
+        roamingBlockedCells[row * mapW + col] = isSolid(rows, col, row) ? 1 : 0;
+      }
+    }
+    const roamingBlocked = (col: number, row: number) => {
+      if (col < 0 || row < 0 || col >= mapW || row >= mapH) return true;
+      return roamingBlockedCells[row * mapW + col] === 1;
+    };
 
     for (let row = 0; row < mapH; row++) {
       for (let col = 0; col < mapW; col++) {
@@ -1486,12 +1496,18 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
                 [0, 1],
                 [0, -1],
               ];
-              const [dx, dy] = dirs[Math.floor(Math.random() * dirs.length)]!;
-              const nextCol = p.curCol + dx;
-              const nextRow = p.curRow + dy;
-              const distFromHome = Math.hypot(nextCol - p.homeCol, nextRow - p.homeRow);
+              const candidates = dirs
+                .map(([dx, dy]) => ({ dx, dy, col: p.curCol + dx, row: p.curRow + dy }))
+                .filter(({ col, row }) =>
+                  Math.hypot(col - p.homeCol, row - p.homeRow) <= 1.8 &&
+                  !roamingBlocked(col, row),
+                );
+              const candidate = candidates.length
+                ? candidates[Math.floor(Math.random() * candidates.length)]!
+                : null;
 
-              if (distFromHome <= 1.8 && !isSolid(rows, nextCol, nextRow)) {
+              if (candidate) {
+                const { dx, dy, col: nextCol, row: nextRow } = candidate;
                 p.state = "walking";
                 p.facing =
                   dx < 0 ? "left" :
@@ -1569,31 +1585,35 @@ export function createGame(root: HTMLElement, cb: GameCallbacks): GameHandle {
               npc.idleTimer = 1.8 + Math.random() * 2.5;
             } else {
               // Choose a step to walk
-              const pickDir = dirs[Math.floor(Math.random() * dirs.length)]!;
-              const deltaX = pickDir === "right" ? 1 : pickDir === "left" ? -1 : 0;
-              const deltaY = pickDir === "down" ? 1 : pickDir === "up" ? -1 : 0;
-              const nextCol = npc.curCol + deltaX;
-              const nextRow = npc.curRow + deltaY;
+              const candidates = dirs
+                .map((pickDir) => ({
+                  pickDir,
+                  col: npc.curCol + (pickDir === "right" ? 1 : pickDir === "left" ? -1 : 0),
+                  row: npc.curRow + (pickDir === "down" ? 1 : pickDir === "up" ? -1 : 0),
+                }))
+                .filter(({ col, row }) =>
+                  Math.hypot(col - npc.homeCol, row - npc.homeRow) <= 2.2 &&
+                  !roamingBlocked(col, row),
+                )
+                .filter(({ col, row }) => {
+                  const pTileX = Math.floor(player.pos.x / TILE);
+                  const pTileY = Math.floor(player.pos.y / TILE);
+                  if (col === pTileX && row === pTileY) return false;
+                  return !activeNpcs.some(
+                    (other) =>
+                      other !== npc &&
+                      ((other.curCol === col && other.curRow === row) ||
+                        (other.state === "walking" &&
+                          Math.round((other.targetX - TILE / 2) / TILE) === col &&
+                          Math.round((other.targetY - (TILE - 2)) / TILE) === row)),
+                  );
+                });
+              const candidate = candidates.length
+                ? candidates[Math.floor(Math.random() * candidates.length)]!
+                : null;
 
-              const distFromHome = Math.hypot(nextCol - npc.homeCol, nextRow - npc.homeRow);
-              const pTileX = Math.floor(player.pos.x / TILE);
-              const pTileY = Math.floor(player.pos.y / TILE);
-              const nearPlayer = nextCol === pTileX && nextRow === pTileY;
-              const occupiedByOther = activeNpcs.some(
-                (other) =>
-                  other !== npc &&
-                  ((other.curCol === nextCol && other.curRow === nextRow) ||
-                    (other.state === "walking" &&
-                      Math.round((other.targetX - TILE / 2) / TILE) === nextCol &&
-                      Math.round((other.targetY - (TILE - 2)) / TILE) === nextRow)),
-              );
-
-              if (
-                distFromHome <= 2.2 &&
-                !isSolid(rows, nextCol, nextRow) &&
-                !nearPlayer &&
-                !occupiedByOther
-              ) {
+              if (candidate) {
+                const { pickDir, col: nextCol, row: nextRow } = candidate;
                 npc.state = "walking";
                 npc.facing = pickDir;
                 npc.walkProgress = 0;

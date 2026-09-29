@@ -400,7 +400,13 @@ function World({
   const activeTransition = TRANSITIONS.find((t) => t.id === transitionType) ?? TRANSITIONS[0]!;
 
   return (
-    <div className="relative flex min-h-screen flex-col">
+    <div
+      className="game-shell-root relative flex min-h-screen flex-col"
+      onContextMenu={(e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest("button,a,[role='button']")) e.preventDefault();
+      }}
+    >
       <header className="border-border flex flex-wrap items-center justify-between gap-3 border-b-4 px-3 py-2 bg-card/80 backdrop-blur-sm">
         <h1 className="pixel-font text-[10px] text-foreground">{scene?.title ?? "Desert Oasis"}</h1>
 
@@ -642,10 +648,10 @@ function World({
         </div>
         {scene?.indoor ? (
           <div className="flex gap-2">
-            <PixelButton onClick={() => setScreen(scene.id as Exclude<SceneId, "city">)}>
+            <PixelButton className="select-none touch-manipulation" onClick={() => setScreen(scene.id as Exclude<SceneId, "city">)}>
               Ver dados
             </PixelButton>
-            <PixelButton variant="secondary" onClick={() => gameRef.current?.goTo("city")}>
+            <PixelButton variant="secondary" className="select-none touch-manipulation" onClick={() => gameRef.current?.goTo("city")}>
               ← Sair pra Cidade
             </PixelButton>
           </div>

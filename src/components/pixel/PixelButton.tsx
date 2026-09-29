@@ -19,7 +19,7 @@ export function PixelButton({
     <button
       {...props}
       className={cn(
-        "pixel-font pixel-press px-3 py-2 text-[10px] uppercase disabled:cursor-not-allowed disabled:opacity-60",
+        "pixel-font pixel-press select-none touch-manipulation px-3 py-2 text-[10px] uppercase disabled:cursor-not-allowed disabled:opacity-60",
         VARIANTS[variant],
         className,
       )}
