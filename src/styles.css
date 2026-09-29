@@ -244,3 +244,34 @@
   -webkit-user-select: none;
   -webkit-user-drag: none;
 }
+
+@keyframes orientation-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (max-width: 640px) {
+  .mobile-quick-travel {
+    gap: 3px;
+    padding: 3px 6px;
+  }
+  .mobile-quick-travel-btn {
+    min-width: 42px;
+    min-height: 32px;
+    padding: 4px 6px;
+    font-size: 8px;
+  }
+  .game-shell-footer {
+    padding-top: 3px;
+  }
+  .game-shell-footer .game-dpad {
+    gap: 6px;
+  }
+  .game-shell-footer .game-dpad-btn {
+    width: 42px;
+    height: 42px;
+  }
+  .game-shell-footer .game-dpad-action {
+    width: 52px;
+    height: 52px;
+  }
+}
