@@ -212,14 +212,29 @@ function World({
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
+  const [isPortraitMobile, setIsPortraitMobile] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 1024px) and (orientation: portrait)");
+    const update = () => setIsPortraitMobile(media.matches);
+    update();
+    media.addEventListener?.("change", update);
+    window.addEventListener("orientationchange", update);
+    window.addEventListener("resize", update);
+    return () => {
+      media.removeEventListener?.("change", update);
+      window.removeEventListener("orientationchange", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
 
   // Auto-dismiss location toast banner after 2.4 seconds
   useEffect(() => {
     if (locationToast) {
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
       toastTimerRef.current = setTimeout(() => {
-        setLocationToast(null);
-      }, 2400);
+      setLocationToast(null);
+    }, 1200);
     }
     return () => {
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
@@ -400,7 +415,13 @@ function World({
   const activeTransition = TRANSITIONS.find((t) => t.id === transitionType) ?? TRANSITIONS[0]!;
 
   return (
-    <div className="relative flex min-h-screen flex-col">
+    <div
+      className="game-shell-root relative flex min-h-screen flex-col"
+      onContextMenu={(e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest("button,a,[role='button']")) e.preventDefault();
+      }}
+    >
       <header className="border-border flex flex-wrap items-center justify-between gap-3 border-b-4 px-3 py-2 bg-card/80 backdrop-blur-sm">
         <h1 className="pixel-font text-[10px] text-foreground">{scene?.title ?? "Desert Oasis"}</h1>
 
@@ -512,7 +533,7 @@ function World({
         </div>
 
         {/* Pokemon GBA Location Toast Banner (auto-hides in ~2s or on click) */}
-        {locationToast && !screen && (
+        {locationToast && !screen && !isPortraitMobile && (
           <div
             onClick={() => setLocationToast(null)}
             className="cursor-pointer absolute top-4 inset-x-0 flex justify-center z-30 transition-all duration-300 animate-in fade-in slide-in-from-top-3"
@@ -539,7 +560,7 @@ function World({
         )}
 
         {/* Action prompt text at top of screen (auto-dismisses after 3 seconds) */}
-        {prompt && promptVisible && !dialogue && (
+        {prompt && promptVisible && !dialogue && !isPortraitMobile && (
           <div
             onClick={() => setPromptVisible(false)}
             className="cursor-pointer absolute inset-x-0 top-3 flex justify-center z-30 animate-in fade-in slide-in-from-top-2"
@@ -642,10 +663,10 @@ function World({
         </div>
         {scene?.indoor ? (
           <div className="flex gap-2">
-            <PixelButton onClick={() => setScreen(scene.id as Exclude<SceneId, "city">)}>
+            <PixelButton className="select-none touch-manipulation" onClick={() => setScreen(scene.id as Exclude<SceneId, "city">)}>
               Ver dados
             </PixelButton>
-            <PixelButton variant="secondary" onClick={() => gameRef.current?.goTo("city")}>
+            <PixelButton variant="secondary" className="select-none touch-manipulation" onClick={() => gameRef.current?.goTo("city")}>
               ← Sair pra Cidade
             </PixelButton>
           </div>

@@ -216,3 +216,124 @@
     transform: translateY(-4px);
   }
 }
+
+
+/* Mobile game controls: prevent browser long-press selection/callouts. */
+.game-shell-root {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-drag: none;
+}
+.game-shell-root button,
+.game-shell-root a,
+.game-shell-root [role="button"] {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  touch-action: manipulation;
+}
+.game-shell-root .game-dpad button {
+  touch-action: none;
+}
+.game-shell-root img {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+@keyframes orientation-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (max-width: 640px) {
+  .mobile-quick-travel {
+    gap: 3px;
+    padding: 3px 6px;
+  }
+  .mobile-quick-travel-btn {
+    min-width: 42px;
+    min-height: 32px;
+    padding: 4px 6px;
+    font-size: 8px;
+  }
+  .game-shell-footer {
+    padding-top: 3px;
+  }
+  .game-shell-footer .game-dpad {
+    gap: 6px;
+  }
+  .game-shell-footer .game-dpad-btn {
+    width: 42px;
+    height: 42px;
+  }
+  .game-shell-footer .game-dpad-action {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (max-width: 1024px) and (orientation: landscape) {
+  .game-shell-footer {
+    box-sizing: border-box;
+    height: 106px;
+    min-height: 106px;
+    padding-top: 2px;
+    padding-bottom: max(4px, env(safe-area-inset-bottom));
+    overflow: visible;
+  }
+  .game-shell-footer .game-dpad {
+    height: 100px;
+    gap: 8px;
+    align-items: flex-end;
+    overflow: visible;
+  }
+  .game-shell-footer .game-dpad-pad {
+    width: 100px;
+    height: 100px;
+    display: grid;
+    gap: 2px;
+    transform: none;
+  }
+  .game-shell-footer .game-dpad-btn {
+    width: 32px;
+    height: 32px;
+    min-height: 32px;
+    padding: 0;
+  }
+  .game-shell-footer .game-dpad-action {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    margin-bottom: 2px;
+  }
+}
+@media (max-width: 640px) and (orientation: landscape) {
+  .game-shell-footer {
+    height: 102px;
+    min-height: 102px;
+    padding-left: max(6px, env(safe-area-inset-left));
+    padding-right: max(6px, env(safe-area-inset-right));
+  }
+  .game-shell-footer .game-dpad {
+    height: 96px;
+    gap: 6px;
+  }
+  .game-shell-footer .game-dpad-pad {
+    width: 96px;
+    height: 96px;
+  }
+  .game-shell-footer .game-dpad-btn {
+    width: 30px;
+    height: 30px;
+    min-height: 30px;
+  }
+  .game-shell-footer .game-dpad-action {
+    width: 42px;
+    height: 42px;
+    min-height: 42px;
+  }
+}

@@ -14,12 +14,17 @@ export function DPad({ onDir, onAction, actionLabel }: Props) {
       style={{ gridArea: area }}
       onPointerDown={(e) => {
         e.preventDefault();
+        e.currentTarget.setPointerCapture(e.pointerId);
         onDir(dir);
       }}
-      onPointerUp={() => onDir(null)}
-      onPointerLeave={() => onDir(null)}
+      onPointerUp={(e) => {
+        e.preventDefault();
+        if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+        onDir(null);
+      }}
       onPointerCancel={() => onDir(null)}
-      className="pixel-press bg-card text-card-foreground pixel-font flex h-12 w-12 items-center justify-center text-[11px] select-none touch-none"
+      onContextMenu={(e) => e.preventDefault()}
+      className="pixel-press flex h-14 w-14 select-none touch-none touch-manipulation items-center justify-center border border-white/10 bg-white/[0.08] text-card-foreground shadow-[0_4px_14px_rgba(0,0,0,0.18)] backdrop-blur-md active:bg-white/[0.18] pixel-font text-[13px]"
     >
       {glyph}
     </button>
@@ -41,8 +46,21 @@ export function DPad({ onDir, onAction, actionLabel }: Props) {
       </div>
       <button
         type="button"
-        onClick={onAction}
-        className="pixel-press bg-primary text-primary-foreground pixel-font flex h-16 w-16 items-center justify-center rounded-full text-[11px] select-none touch-none"
+        aria-label={actionLabel}
+        onPointerDown={(e) => {
+          e.preventDefault();
+          e.currentTarget.setPointerCapture(e.pointerId);
+          onAction();
+        }}
+        onPointerUp={(e) => {
+          e.preventDefault();
+          if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+        }}
+        onPointerCancel={(e) => {
+          if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+        }}
+        onContextMenu={(e) => e.preventDefault()}
+        className="pixel-press flex h-[4.5rem] w-[4.5rem] select-none touch-none touch-manipulation items-center justify-center rounded-full border border-white/15 bg-primary/30 text-primary-foreground shadow-[0_4px_18px_rgba(0,0,0,0.22)] backdrop-blur-md active:bg-primary/50 pixel-font text-[12px]"
       >
         {actionLabel}
       </button>
