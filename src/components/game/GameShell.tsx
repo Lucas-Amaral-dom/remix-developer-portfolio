@@ -212,14 +212,29 @@ function World({
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
+  const [isPortraitMobile, setIsPortraitMobile] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 1024px) and (orientation: portrait)");
+    const update = () => setIsPortraitMobile(media.matches);
+    update();
+    media.addEventListener?.("change", update);
+    window.addEventListener("orientationchange", update);
+    window.addEventListener("resize", update);
+    return () => {
+      media.removeEventListener?.("change", update);
+      window.removeEventListener("orientationchange", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
 
   // Auto-dismiss location toast banner after 2.4 seconds
   useEffect(() => {
     if (locationToast) {
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
       toastTimerRef.current = setTimeout(() => {
-        setLocationToast(null);
-      }, 2400);
+      setLocationToast(null);
+    }, 1200);
     }
     return () => {
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
@@ -518,7 +533,7 @@ function World({
         </div>
 
         {/* Pokemon GBA Location Toast Banner (auto-hides in ~2s or on click) */}
-        {locationToast && !screen && (
+        {locationToast && !screen && !isPortraitMobile && (
           <div
             onClick={() => setLocationToast(null)}
             className="cursor-pointer absolute top-4 inset-x-0 flex justify-center z-30 transition-all duration-300 animate-in fade-in slide-in-from-top-3"
@@ -545,7 +560,7 @@ function World({
         )}
 
         {/* Action prompt text at top of screen (auto-dismisses after 3 seconds) */}
-        {prompt && promptVisible && !dialogue && (
+        {prompt && promptVisible && !dialogue && !isPortraitMobile && (
           <div
             onClick={() => setPromptVisible(false)}
             className="cursor-pointer absolute inset-x-0 top-3 flex justify-center z-30 animate-in fade-in slide-in-from-top-2"
