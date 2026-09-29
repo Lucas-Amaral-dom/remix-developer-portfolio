@@ -42,12 +42,12 @@ function TrainerAvatar({ speaker }: { speaker: string }) {
   return (
     <div
       aria-label={`${speaker} — retrato de batalha`}
-      className="h-24 w-20 shrink-0 overflow-hidden rounded-md border-2 border-amber-800/60 bg-gradient-to-b from-amber-950/40 via-amber-900/20 to-black/50 shadow-md"
+      className="h-16 w-14 shrink-0 overflow-hidden rounded-md border-2 border-amber-800/60 bg-gradient-to-b from-amber-950/40 via-amber-900/20 to-black/50 shadow-md"
       style={{
         backgroundImage: 'url("/assets/trainers-real-overworld-atlas.png")',
         backgroundRepeat: "no-repeat",
-        backgroundSize: "384px 96px",
-        backgroundPosition: `${x}px ${y}px`,
+        backgroundSize: "336px 84px",
+        backgroundPosition: `${x * 0.875}px ${y * 0.875}px`,
         imageRendering: "pixelated",
       }}
     />
@@ -138,14 +138,14 @@ export function DialogueBox({ dialogue, onClose, onStartBattle, onHeal, formSlot
         advance();
       }}
     >
-      <div className="bg-card text-card-foreground pixel-frame relative p-4 pt-6 md:p-6 md:pt-7">
-        <span className="pixel-font bg-primary text-primary-foreground absolute -top-3 left-3 px-2 py-1 text-[9px]">
+      <div className="bg-card/95 text-card-foreground pixel-frame relative p-2 pt-4 sm:p-3 sm:pt-5 md:p-5 md:pt-6 max-h-[46dvh] sm:max-h-[52dvh] md:max-h-[58dvh] overflow-y-auto">
+        <span className="pixel-font bg-primary text-primary-foreground absolute -top-2.5 left-2 px-1.5 py-0.5 text-[7px]">
           {dialogue.speaker}
         </span>
 
-        <div className="flex items-start gap-3.5 md:gap-5">
+        <div className="flex items-start gap-1.5 sm:gap-2.5 md:gap-4">
           <TrainerAvatar speaker={dialogue.speaker} />
-          <p className="flex-1 min-h-[3.5rem] text-sm leading-relaxed whitespace-pre-line md:text-base">
+          <p className="flex-1 min-w-0 min-h-0 text-[11px] leading-5 whitespace-pre-line sm:text-[13px] sm:leading-6 md:text-base">
             {shown}
             {!done && (
               <span className="ml-0.5 inline-block animate-[blink-cursor_1s_steps(1)_infinite]">
