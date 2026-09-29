@@ -387,15 +387,7 @@ function buildCity(): SceneDef {
         label: "Guia do Oásis",
         dialogue: "city-guide",
       },
-      {
-        x: 23,
-        y: 13,
-        kind: "npc",
-        npc: 1,
-        face: "left",
-        label: "Viajante do Deserto",
-        dialogue: "city-traveler",
-      },
+
       // Oasis Lake & Dock
       {
         x: 11,
@@ -479,15 +471,7 @@ function buildCity(): SceneDef {
         label: "Desenvolvedor Full Stack",
         dialogue: "dev-coder",
       },
-      {
-        x: 14,
-        y: 21,
-        kind: "npc",
-        npc: 4,
-        face: "left",
-        label: "Mecânica de Software",
-        dialogue: "dev-mechanic",
-      },
+
       { x: 15, y: 22, kind: "duck", label: "Mascote Dino Dev", dialogue: "dev-dino" },
       { x: 12, y: 22, kind: "computer", label: "Bancada com Monitores", dialogue: "dev-terminal" },
 
